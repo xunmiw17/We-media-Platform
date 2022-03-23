@@ -1,6 +1,8 @@
 package com.imooc.api.interceptors;
 
 import com.imooc.api.BaseController;
+import com.imooc.exception.GraceException;
+import com.imooc.grace.result.ResponseStatusEnum;
 import com.imooc.utils.IPUtil;
 import com.imooc.utils.RedisOperator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +30,7 @@ public class PassportInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         String userIP = IPUtil.getRequestIp(request);
         if (redisOperator.keyIsExist(BaseController.MOBILE_SMSCODE + ":" + userIP)) {
+            GraceException.display(ResponseStatusEnum.SMS_NEED_WAIT_ERROR);
             System.out.println("短信发送频率过高");
             return false;
         }
