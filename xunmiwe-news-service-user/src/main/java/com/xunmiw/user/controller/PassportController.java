@@ -3,14 +3,19 @@ package com.xunmiw.user.controller;
 import com.xunmiw.api.BaseController;
 import com.xunmiw.api.controller.user.PassportControllerApi;
 import com.xunmiw.grace.result.GraceJSONResult;
+import com.xunmiw.grace.result.ResponseStatusEnum;
+import com.xunmiw.pojo.bo.LoginBO;
 import com.xunmiw.utils.IPUtil;
 import com.xunmiw.utils.SMSUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Map;
 
 @RestController
 public class PassportController extends BaseController implements PassportControllerApi {
@@ -38,5 +43,24 @@ public class PassportController extends BaseController implements PassportContro
         } catch (Exception e) {
             return GraceJSONResult.error();
         }
+    }
+
+    @Override
+    public GraceJSONResult doLogin(LoginBO loginBO, BindingResult result) {
+        // 0. 判断BindingResult中是否保存了错误的验证信息，如果有则需要返回
+        if (result.hasErrors()) {
+            Map<String, String> map = getErrors(result);
+            return GraceJSONResult.errorMap(map);
+        }
+
+        // 1. 校验验证码
+        String mobile = loginBO.getMobile();
+        String smsCode = loginBO.getSmsCode();
+        String redisSMS = redisOperator.get(MOBILE_SMSCODE + ":" + mobile);
+        if (StringUtils.isBlank(redisSMS) || !smsCode.equals(redisSMS)) {
+            return GraceJSONResult.errorCustom(ResponseStatusEnum.SMS_CODE_ERROR);
+        }
+
+        return GraceJSONResult.ok();
     }
 }
