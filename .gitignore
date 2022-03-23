@@ -1,6 +1,6 @@
 # Project exclude paths
-/imooc-news-common/target/
-/imooc-news-model/target/
-/imooc-news-service-api/target/
-/imooc-news-service-user/target/
+/xunmiwe-news-common/target/
+/xunmiwe-news-model/target/
+/xunmiwe-news-service-api/target/
+/xunmiwe-news-service-user/target/
 /mybatis-generator-database/target/

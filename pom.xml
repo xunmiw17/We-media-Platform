@@ -4,14 +4,14 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.imooc</groupId>
-    <artifactId>imooc-news</artifactId>
+    <groupId>com.xunmiw</groupId>
+    <artifactId>xunmiwe-news</artifactId>
     <version>1.0-SNAPSHOT</version>
     <modules>
-        <module>imooc-news-model</module>
-        <module>imooc-news-common</module>
-        <module>imooc-news-service-api</module>
-        <module>imooc-news-service-user</module>
+        <module>xunmiwe-news-model</module>
+        <module>xunmiwe-news-common</module>
+        <module>xunmiwe-news-service-api</module>
+        <module>xunmiwe-news-service-user</module>
     </modules>
 
     <!--

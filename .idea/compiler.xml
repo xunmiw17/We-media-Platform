@@ -6,11 +6,11 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="imooc-news-model" />
-        <module name="imooc-news-common" />
-        <module name="imooc-news-service-user" />
         <module name="mybatis-generator-database" />
-        <module name="imooc-news-service-api" />
+        <module name="xunmiwe-news-common" />
+        <module name="xunmiwe-news-service-user" />
+        <module name="xunmiwe-news-model" />
+        <module name="xunmiwe-news-service-api" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
@@ -19,11 +19,11 @@
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
-      <module name="imooc-news" options="" />
-      <module name="imooc-news-common" options="-parameters" />
-      <module name="imooc-news-model" options="-parameters" />
-      <module name="imooc-news-service-api" options="-parameters" />
-      <module name="imooc-news-service-user" options="-parameters" />
+      <module name="xunmiwe-news" options="" />
+      <module name="xunmiwe-news-common" options="-parameters" />
+      <module name="xunmiwe-news-model" options="-parameters" />
+      <module name="xunmiwe-news-service-api" options="-parameters" />
+      <module name="xunmiwe-news-service-user" options="-parameters" />
     </option>
   </component>
 </project>
