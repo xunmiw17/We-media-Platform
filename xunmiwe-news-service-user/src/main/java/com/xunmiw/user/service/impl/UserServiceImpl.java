@@ -2,12 +2,16 @@ package com.xunmiw.user.service.impl;
 
 import com.xunmiw.enums.Sex;
 import com.xunmiw.enums.UserStatus;
+import com.xunmiw.exception.GraceException;
+import com.xunmiw.grace.result.ResponseStatusEnum;
 import com.xunmiw.pojo.AppUser;
+import com.xunmiw.pojo.bo.UpdateUserInfoBO;
 import com.xunmiw.user.mapper.AppUserMapper;
 import com.xunmiw.user.service.UserService;
 import com.xunmiw.utils.DateUtil;
 import com.xunmiw.utils.DesensitizationUtil;
 import org.n3r.idworker.Sid;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -62,5 +66,19 @@ public class UserServiceImpl implements UserService {
     @Override
     public AppUser getUser(String userId) {
         return appUserMapper.selectByPrimaryKey(userId);
+    }
+
+    @Override
+    public void updateUserInfo(UpdateUserInfoBO updateUserInfoBO) {
+        AppUser appUser = new AppUser();
+        BeanUtils.copyProperties(updateUserInfoBO, appUser);
+
+        appUser.setActiveStatus(UserStatus.ACTIVE.type);
+        appUser.setUpdatedTime(new Date());
+
+        int result = appUserMapper.updateByPrimaryKeySelective(appUser);
+        if (result != 1) {
+            GraceException.display(ResponseStatusEnum.USER_UPDATE_ERROR);
+        }
     }
 }

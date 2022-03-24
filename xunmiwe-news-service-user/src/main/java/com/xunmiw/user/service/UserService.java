@@ -1,6 +1,7 @@
 package com.xunmiw.user.service;
 
 import com.xunmiw.pojo.AppUser;
+import com.xunmiw.pojo.bo.UpdateUserInfoBO;
 
 public interface UserService {
 
@@ -24,4 +25,10 @@ public interface UserService {
      * @return
      */
     public AppUser getUser(String userId);
+
+    /**
+     * 用户修改信息，完善资料，并且激活
+     * @param updateUserInfoBO
+     */
+    public void updateUserInfo(UpdateUserInfoBO updateUserInfoBO);
 }
