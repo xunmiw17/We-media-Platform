@@ -2,6 +2,7 @@ package com.xunmiw.api;
 
 import com.xunmiw.utils.RedisOperator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 
@@ -23,6 +24,9 @@ public class BaseController {
     public static final String REDIS_USER_TOKEN = "redis_user_token";
 
     public static final Integer COOKIE_MONTH = 30 * 24 * 60 * 60;
+
+    @Value("${website.domain-name}")
+    public String DOMAIN_NAME;
 
     /**
      * 获取BO中的错误信息
@@ -55,7 +59,8 @@ public class BaseController {
                                  Integer maxAge) {
         Cookie cookie = new Cookie(cookieName, cookieValue);
         cookie.setMaxAge(maxAge);
-        cookie.setDomain("imoocnews.com");
+        // cookie.setDomain("imoocnews.com");
+        cookie.setDomain(DOMAIN_NAME);
         cookie.setPath("/");
         response.addCookie(cookie);
     }

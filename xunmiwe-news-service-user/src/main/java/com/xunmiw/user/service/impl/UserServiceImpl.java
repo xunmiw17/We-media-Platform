@@ -58,4 +58,9 @@ public class UserServiceImpl implements UserService {
         appUserMapper.insert(appUser);
         return appUser;
     }
+
+    @Override
+    public AppUser getUser(String userId) {
+        return appUserMapper.selectByPrimaryKey(userId);
+    }
 }
