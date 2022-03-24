@@ -7,7 +7,7 @@ import tk.mybatis.spring.annotation.MapperScan;
 
 @SpringBootApplication
 @MapperScan(basePackages = "com.xunmiw.user.mapper")
-@ComponentScan("com.xunmiw")
+@ComponentScan(basePackages = {"com.xunmiw", "org.n3r.idworker"})
 public class Application {
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);

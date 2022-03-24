@@ -2,9 +2,12 @@ package com.xunmiw.user.controller;
 
 import com.xunmiw.api.BaseController;
 import com.xunmiw.api.controller.user.PassportControllerApi;
+import com.xunmiw.enums.UserStatus;
 import com.xunmiw.grace.result.GraceJSONResult;
 import com.xunmiw.grace.result.ResponseStatusEnum;
+import com.xunmiw.pojo.AppUser;
 import com.xunmiw.pojo.bo.LoginBO;
+import com.xunmiw.user.service.UserService;
 import com.xunmiw.utils.IPUtil;
 import com.xunmiw.utils.SMSUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -15,7 +18,9 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 public class PassportController extends BaseController implements PassportControllerApi {
@@ -24,6 +29,9 @@ public class PassportController extends BaseController implements PassportContro
 
     @Autowired
     private SMSUtils smsUtils;
+
+    @Autowired
+    private UserService userService;
 
     public GraceJSONResult getSMSCode(String mobile, HttpServletRequest request) {
         try {
@@ -46,7 +54,7 @@ public class PassportController extends BaseController implements PassportContro
     }
 
     @Override
-    public GraceJSONResult doLogin(LoginBO loginBO, BindingResult result) {
+    public GraceJSONResult doLogin(LoginBO loginBO, BindingResult result, HttpServletRequest request, HttpServletResponse response) {
         // 0. 判断BindingResult中是否保存了错误的验证信息，如果有则需要返回
         if (result.hasErrors()) {
             Map<String, String> map = getErrors(result);
@@ -61,6 +69,31 @@ public class PassportController extends BaseController implements PassportContro
             return GraceJSONResult.errorCustom(ResponseStatusEnum.SMS_CODE_ERROR);
         }
 
-        return GraceJSONResult.ok();
+        // 2. 查询数据库，判断该用户是否注册
+        AppUser appUser = userService.mobileExists(mobile);
+        // 如用户存在，并且为冻结状态，则抛出异常，禁止登录
+        if (appUser != null && appUser.getActiveStatus() == UserStatus.FROZEN.type) {
+            return GraceJSONResult.errorCustom(ResponseStatusEnum.USER_FROZEN);
+        } else if (appUser == null) {
+            appUser = userService.createUser(mobile);
+        }
+
+        // 3. 保存用户分布式会话的相关操作
+        int activeStatus = appUser.getActiveStatus();
+        if (activeStatus != UserStatus.FROZEN.type) {
+            // 保存随机生成的token到Redis
+            String token = UUID.randomUUID().toString();
+            redisOperator.set(REDIS_USER_TOKEN + ":" + appUser.getId(), token);
+
+            // 保存用户id和token到cookie中
+            setCookie(request, response, "utoken", token, COOKIE_MONTH);
+            setCookie(request, response, "uid", appUser.getId(), COOKIE_MONTH);
+        }
+
+        // 4. 用户登录/注册成功后，需要删除Redis中存储的短信验证码，验证码只能使用一次
+        redisOperator.del(MOBILE_SMSCODE + ":" + mobile);
+
+        // 5. 返回用户状态
+        return GraceJSONResult.ok(activeStatus);
     }
 }
