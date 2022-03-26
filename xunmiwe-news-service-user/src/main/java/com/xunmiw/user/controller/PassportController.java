@@ -98,4 +98,14 @@ public class PassportController extends BaseController implements PassportContro
         // 5. 返回用户状态
         return GraceJSONResult.ok(activeStatus);
     }
+
+    @Override
+    public GraceJSONResult logout(String userId, HttpServletRequest request, HttpServletResponse response) {
+        // 只需要在Redis中删除token，没有必要删除user info
+        redisOperator.del(REDIS_USER_TOKEN + ":" + userId);
+        setCookie(request, response, "utoken", "", COOKIE_DELETE);
+        setCookie(request, response, "uid", "", COOKIE_DELETE);
+
+        return GraceJSONResult.ok();
+    }
 }
