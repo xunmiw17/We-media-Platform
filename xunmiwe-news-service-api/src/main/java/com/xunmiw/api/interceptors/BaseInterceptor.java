@@ -9,9 +9,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class BaseInterceptor {
 
     public static final String REDIS_USER_TOKEN = "redis_user_token";
+    public static final String REDIS_USER_INFO = "redis_user_info";
 
     @Autowired
-    private RedisOperator redisOperator;
+    protected RedisOperator redisOperator;
 
     public boolean verifyUserIdToken(String userId, String token, String redisKeyPrefix) {
         if (StringUtils.isNotBlank(userId) && StringUtils.isNotBlank(token)) {

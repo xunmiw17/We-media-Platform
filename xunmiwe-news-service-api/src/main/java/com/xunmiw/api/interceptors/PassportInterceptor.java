@@ -31,7 +31,6 @@ public class PassportInterceptor implements HandlerInterceptor {
         String userIP = IPUtil.getRequestIp(request);
         if (redisOperator.keyIsExist(BaseController.MOBILE_SMSCODE + ":" + userIP)) {
             GraceException.display(ResponseStatusEnum.SMS_NEED_WAIT_ERROR);
-            System.out.println("短信发送频率过高");
             return false;
         }
         /**

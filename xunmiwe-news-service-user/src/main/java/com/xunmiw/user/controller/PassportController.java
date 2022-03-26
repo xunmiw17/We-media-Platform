@@ -9,6 +9,7 @@ import com.xunmiw.pojo.AppUser;
 import com.xunmiw.pojo.bo.LoginBO;
 import com.xunmiw.user.service.UserService;
 import com.xunmiw.utils.IPUtil;
+import com.xunmiw.utils.JsonUtils;
 import com.xunmiw.utils.SMSUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -84,6 +85,7 @@ public class PassportController extends BaseController implements PassportContro
             // 保存随机生成的token到Redis
             String token = UUID.randomUUID().toString();
             redisOperator.set(REDIS_USER_TOKEN + ":" + appUser.getId(), token);
+            redisOperator.set(REDIS_USER_INFO + ":" + appUser.getId(), JsonUtils.objectToJson(appUser));
 
             // 保存用户id和token到cookie中
             setCookie(request, response, "utoken", token, COOKIE_MONTH);

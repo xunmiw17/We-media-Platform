@@ -14,8 +14,10 @@ public class UserTokenInterceptor extends BaseInterceptor implements HandlerInte
 
         // 判断是否放行
         boolean run = verifyUserIdToken(userId, userToken, REDIS_USER_TOKEN);
-        System.out.println(run);
-        return true;
+        if (run) {
+            return true;
+        }
+        return false;
     }
 
     @Override
