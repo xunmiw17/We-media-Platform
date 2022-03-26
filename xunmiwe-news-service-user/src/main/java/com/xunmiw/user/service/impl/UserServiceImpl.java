@@ -10,6 +10,8 @@ import com.xunmiw.user.mapper.AppUserMapper;
 import com.xunmiw.user.service.UserService;
 import com.xunmiw.utils.DateUtil;
 import com.xunmiw.utils.DesensitizationUtil;
+import com.xunmiw.utils.JsonUtils;
+import com.xunmiw.utils.RedisOperator;
 import org.n3r.idworker.Sid;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +29,11 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private Sid sid;
+
+    @Autowired
+    public RedisOperator redisOperator;
+
+    public static final String REDIS_USER_INFO = "redis_user_info";
 
     private static final String USER_FACE0 = "http://122.152.205.72:88/group1/M00/00/05/CpoxxFw_8_qAIlFXAAAcIhVPdSg994.png";
     private static final String USER_FACE1 = "http://122.152.205.72:88/group1/M00/00/05/CpoxxF6ZUySASMbOAABBAXhjY0Y649.png";
@@ -70,6 +77,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void updateUserInfo(UpdateUserInfoBO updateUserInfoBO) {
+
+        String userId = updateUserInfoBO.getId();
+
         AppUser appUser = new AppUser();
         BeanUtils.copyProperties(updateUserInfoBO, appUser);
 
@@ -80,5 +90,9 @@ public class UserServiceImpl implements UserService {
         if (result != 1) {
             GraceException.display(ResponseStatusEnum.USER_UPDATE_ERROR);
         }
+
+        // 再次查询用户最新的基本信息，放入Redis
+        AppUser updatedAppUser = getUser(userId);
+        redisOperator.set(REDIS_USER_INFO + ":" + userId, JsonUtils.objectToJson(appUser));
     }
 }

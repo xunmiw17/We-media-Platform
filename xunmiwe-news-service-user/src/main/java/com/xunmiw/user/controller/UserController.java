@@ -9,6 +9,7 @@ import com.xunmiw.pojo.bo.UpdateUserInfoBO;
 import com.xunmiw.pojo.vo.AppUserVO;
 import com.xunmiw.pojo.vo.UserAccountInfoVO;
 import com.xunmiw.user.service.UserService;
+import com.xunmiw.utils.JsonUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,9 +77,24 @@ public class UserController extends BaseController implements UserControllerApi 
         return GraceJSONResult.ok();
     }
 
+    /**
+     * 由于用户信息不怎么变动，对于千万级别并发量的网站来说，可以缓存用户信息到Redis，减少数据库压力
+     * @param userId
+     * @return
+     */
     private AppUser getUser(String userId) {
-        // TODO 本方法后续公用，并且扩展
-        AppUser appUser = userService.getUser(userId);
+        // 查询判断Redis中是否已经包含用户信息，如包含则不再需要访问数据库
+        String userJson = redisOperator.get(REDIS_USER_INFO + ":" + userId);
+        AppUser appUser = null;
+        if (StringUtils.isNotBlank(userJson)) {
+            appUser = JsonUtils.jsonToPojo(userJson, AppUser.class);
+        } else {
+            appUser = userService.getUser(userId);
+
+            // 将第一次查询到的数据存入Redis
+            redisOperator.set(REDIS_USER_INFO + ":" + userId, JsonUtils.objectToJson(appUser));
+        }
+
         return appUser;
     }
 }
