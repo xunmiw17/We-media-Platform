@@ -10,7 +10,6 @@ import com.xunmiw.user.mapper.AppUserMapper;
 import com.xunmiw.user.service.UserService;
 import com.xunmiw.utils.DateUtil;
 import com.xunmiw.utils.DesensitizationUtil;
-import com.xunmiw.utils.JsonUtils;
 import com.xunmiw.utils.RedisOperator;
 import org.n3r.idworker.Sid;
 import org.springframework.beans.BeanUtils;
@@ -80,6 +79,9 @@ public class UserServiceImpl implements UserService {
 
         String userId = updateUserInfoBO.getId();
 
+        // 为保证双写一致性，先删除Redis中的数据，再更新数据库
+        redisOperator.del(REDIS_USER_INFO + ":" + userId);
+
         AppUser appUser = new AppUser();
         BeanUtils.copyProperties(updateUserInfoBO, appUser);
 
@@ -91,8 +93,12 @@ public class UserServiceImpl implements UserService {
             GraceException.display(ResponseStatusEnum.USER_UPDATE_ERROR);
         }
 
-        // 再次查询用户最新的基本信息，放入Redis
-        AppUser updatedAppUser = getUser(userId);
-        redisOperator.set(REDIS_USER_INFO + ":" + userId, JsonUtils.objectToJson(appUser));
+        // 缓存双删策略
+        try {
+            Thread.sleep(100);
+            redisOperator.del(REDIS_USER_INFO + ":" + userId);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 }
