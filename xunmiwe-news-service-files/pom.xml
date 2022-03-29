@@ -9,7 +9,10 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>xunmiwe-news-service-user</artifactId>
+    <!-- 文件服务，文件相关的操作都在此服务中进行，如文件上传、下载
+            fastdfs, oss, gridfs
+     -->
+    <artifactId>xunmiwe-news-service-files</artifactId>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
@@ -22,5 +25,12 @@
             <artifactId>xunmiwe-news-service-api</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
+
+        <!-- 文件上传fastdfs工具 -->
+        <dependency>
+            <groupId>com.github.tobato</groupId>
+            <artifactId>fastdfs-client</artifactId>
+        </dependency>
     </dependencies>
+
 </project>

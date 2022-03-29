@@ -12,6 +12,7 @@
         <module>xunmiwe-news-common</module>
         <module>xunmiwe-news-service-api</module>
         <module>xunmiwe-news-service-user</module>
+        <module>xunmiwe-news-service-files</module>
     </modules>
 
     <!--
