@@ -1,7 +1,7 @@
 package com.xunmiw.files.controller;
 
 import com.xunmiw.api.controller.files.FileUploadControllerApi;
-import com.xunmiw.files.FileResource;
+import com.xunmiw.files.resource.FileResource;
 import com.xunmiw.files.service.UploadService;
 import com.xunmiw.grace.result.GraceJSONResult;
 import com.xunmiw.grace.result.ResponseStatusEnum;
@@ -45,7 +45,8 @@ public class FileUploadController implements FileUploadControllerApi {
                 }
 
                 // 执行上传
-                path = uploadService.uploadFdfs(file, suffix);
+                //path = uploadService.uploadFdfs(file, suffix);
+                path = uploadService.uploadOss(file, userId, suffix);
 
             } else {
                 return GraceJSONResult.errorCustom(ResponseStatusEnum.FILE_UPLOAD_NULL_ERROR);
@@ -58,7 +59,7 @@ public class FileUploadController implements FileUploadControllerApi {
 
         String finalPath = "";
         if (StringUtils.isNotBlank(path)) {
-            finalPath = fileResource.getHost() + path;
+            finalPath = fileResource.getOssHost() + path;
         } else {
             return GraceJSONResult.errorCustom(ResponseStatusEnum.FILE_UPLOAD_FAILD);
         }
