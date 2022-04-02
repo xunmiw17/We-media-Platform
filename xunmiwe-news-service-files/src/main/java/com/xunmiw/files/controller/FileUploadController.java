@@ -5,6 +5,7 @@ import com.xunmiw.files.resource.FileResource;
 import com.xunmiw.files.service.UploadService;
 import com.xunmiw.grace.result.GraceJSONResult;
 import com.xunmiw.grace.result.ResponseStatusEnum;
+import com.xunmiw.utils.extend.AliImageReviewUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,12 +17,16 @@ import org.springframework.web.multipart.MultipartFile;
 public class FileUploadController implements FileUploadControllerApi {
 
     final static Logger logger = LoggerFactory.getLogger(FileUploadController.class);
+    public static final String FAILED_IMAGE_URL = "https://xunmiwe-news.oss-us-west-1.aliyuncs.com/images/1/220323FTK63TGXP0/220331BTNMH209S8.jpeg";
 
     @Autowired
     private UploadService uploadService;
 
     @Autowired
     private FileResource fileResource;
+
+    @Autowired
+    private AliImageReviewUtils aliImageReviewUtils;
 
     @Override
     public GraceJSONResult uploadFace(String userId, MultipartFile file) throws Exception {
@@ -63,6 +68,30 @@ public class FileUploadController implements FileUploadControllerApi {
         } else {
             return GraceJSONResult.errorCustom(ResponseStatusEnum.FILE_UPLOAD_FAILD);
         }
+        // 文件审核代码，因为未开通阿里云内容安全服务无法使用
+        // return GraceJSONResult.ok(doAliImageReview(finalPath));
         return GraceJSONResult.ok(finalPath);
+    }
+
+    private String doAliImageReview(String pendingImageUrl) {
+        boolean result = false;
+
+        /**
+         * 自动检测文件
+         */
+        try {
+            result = aliImageReviewUtils.reviewImage(pendingImageUrl);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        /**
+         * 如检测失败，返回一个自定义的错误文件
+         */
+        if (!result) {
+            return FAILED_IMAGE_URL;
+        }
+
+        return pendingImageUrl;
     }
 }
