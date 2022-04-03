@@ -1,19 +1,24 @@
 package com.xunmiw.api.interceptors;
 
+import com.xunmiw.utils.RedisOperator;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-public class UserTokenInterceptor extends BaseInterceptor implements HandlerInterceptor {
+public class AdminTokenInterceptor extends BaseInterceptor implements HandlerInterceptor {
+
+    @Autowired
+    private RedisOperator redisOperator;
+
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        String userId = request.getHeader("headerUserId");
-        String userToken = request.getHeader("headerUserToken");
+        String adminUserId = request.getHeader("adminUserId");
+        String adminUserToken = request.getHeader("adminUserToken");
 
-        // 判断是否放行
-        boolean proceed = verifyUserIdToken(userId, userToken, REDIS_USER_TOKEN);
+        boolean proceed = verifyUserIdToken(adminUserId, adminUserToken, REDIS_ADMIN_TOKEN);
         return proceed;
     }
 

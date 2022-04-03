@@ -1,5 +1,6 @@
 package com.xunmiw.api.config;
 
+import com.xunmiw.api.interceptors.AdminTokenInterceptor;
 import com.xunmiw.api.interceptors.PassportInterceptor;
 import com.xunmiw.api.interceptors.UserActiveInterceptor;
 import com.xunmiw.api.interceptors.UserTokenInterceptor;
@@ -26,6 +27,11 @@ public class InterceptorConfig implements WebMvcConfigurer {
         return new UserActiveInterceptor();
     }
 
+    @Bean
+    public AdminTokenInterceptor adminTokenInterceptor() {
+        return new AdminTokenInterceptor();
+    }
+
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(passportInterceptor())
@@ -36,5 +42,7 @@ public class InterceptorConfig implements WebMvcConfigurer {
                 .addPathPatterns("/fs/uploadFace");
         // registry.addInterceptor(userActiveInterceptor())
         //         .addPathPatterns("/user/getAccountInfo");
+        registry.addInterceptor(adminTokenInterceptor())
+                .addPathPatterns("/adminMng/adminIsExist");
     }
 }

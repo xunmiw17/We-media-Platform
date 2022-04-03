@@ -26,6 +26,12 @@
             <version>1.0-SNAPSHOT</version>
         </dependency>
 
+        <!-- Spring Framework的Security包 -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-openfeign</artifactId>
+        </dependency>
+
         <!-- swagger2 配置 -->
         <dependency>
             <groupId>io.springfox</groupId>
