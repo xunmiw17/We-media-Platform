@@ -36,9 +36,15 @@ public interface AdminManageControllerApi {
                                        HttpServletResponse response);
 
     @ApiOperation(value = "分页查询admin列表", notes = "分页查询admin列表", httpMethod = "POST")
-    @PostMapping("getAdminList")
+    @PostMapping("/getAdminList")
     public GraceJSONResult getAdminList(
             @RequestParam @ApiParam(name = "page", value = "查询页数", required = false) Integer page,
             @RequestParam @ApiParam(name = "pageSize", value = "每页条数", required = false) Integer pageSize
     );
+
+    @ApiOperation(value = "admin退出登录", notes = "admin退出登录", httpMethod = "POST")
+    @PostMapping("/adminLogout")
+    public GraceJSONResult adminLogout(@RequestParam String adminId,
+                                       HttpServletRequest request,
+                                       HttpServletResponse response);
 }

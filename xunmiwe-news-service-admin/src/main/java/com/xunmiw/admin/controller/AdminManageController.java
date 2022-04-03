@@ -116,6 +116,19 @@ public class AdminManageController extends BaseController implements AdminManage
         return GraceJSONResult.ok(pagedGridResult);
     }
 
+    @Override
+    public GraceJSONResult adminLogout(String adminId, HttpServletRequest request, HttpServletResponse response) {
+        // 从Redis中删除admin的会话token
+        redisOperator.del(REDIS_ADMIN_TOKEN + ":" + adminId);
+
+        // 从Cookie中清理admin登录的相关信息
+        deleteCookie(request, response, "atoken");
+        deleteCookie(request, response, "aid");
+        deleteCookie(request, response, "aname");
+
+        return GraceJSONResult.ok();
+    }
+
     /**
      * 用于admin用户过后的基本信息设置
      * @param adminUser
