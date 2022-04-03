@@ -5,6 +5,7 @@ import com.xunmiw.pojo.bo.AdminLoginBO;
 import com.xunmiw.pojo.bo.NewAdminBO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,4 +34,11 @@ public interface AdminManageControllerApi {
                                        BindingResult result,
                                        HttpServletRequest request,
                                        HttpServletResponse response);
+
+    @ApiOperation(value = "分页查询admin列表", notes = "分页查询admin列表", httpMethod = "POST")
+    @PostMapping("getAdminList")
+    public GraceJSONResult getAdminList(
+            @RequestParam @ApiParam(name = "page", value = "查询页数", required = false) Integer page,
+            @RequestParam @ApiParam(name = "pageSize", value = "每页条数", required = false) Integer pageSize
+    );
 }

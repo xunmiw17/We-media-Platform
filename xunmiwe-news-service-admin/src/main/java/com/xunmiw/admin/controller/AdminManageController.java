@@ -9,6 +9,7 @@ import com.xunmiw.grace.result.ResponseStatusEnum;
 import com.xunmiw.pojo.AdminUser;
 import com.xunmiw.pojo.bo.AdminLoginBO;
 import com.xunmiw.pojo.bo.NewAdminBO;
+import com.xunmiw.utils.PagedGridResult;
 import com.xunmiw.utils.RedisOperator;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -101,6 +102,18 @@ public class AdminManageController extends BaseController implements AdminManage
         // 4. 调用service，存入admin信息
         adminUserService.createAdminUser(newAdminBO);
         return GraceJSONResult.ok();
+    }
+
+    @Override
+    public GraceJSONResult getAdminList(Integer page, Integer pageSize) {
+        if (page == null)
+            page = DEFAULT_START_PAGE;
+        if (pageSize == null)
+            pageSize = DEFAULT_PAGE_SIZE;
+
+        // 将分页结果（当前页，总页数，总记录数，内容）返回给前端
+        PagedGridResult pagedGridResult = adminUserService.queryAdminList(page, pageSize);
+        return GraceJSONResult.ok(pagedGridResult);
     }
 
     /**

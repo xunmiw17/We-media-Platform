@@ -1,12 +1,14 @@
 package com.xunmiw.admin.service.impl;
 
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import com.xunmiw.admin.mapper.AdminUserMapper;
 import com.xunmiw.admin.service.AdminUserService;
 import com.xunmiw.exception.GraceException;
-import com.xunmiw.grace.result.GraceJSONResult;
 import com.xunmiw.grace.result.ResponseStatusEnum;
 import com.xunmiw.pojo.AdminUser;
 import com.xunmiw.pojo.bo.NewAdminBO;
+import com.xunmiw.utils.PagedGridResult;
 import org.apache.commons.lang3.StringUtils;
 import org.n3r.idworker.Sid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import tk.mybatis.mapper.entity.Example;
 
 import java.util.Date;
+import java.util.List;
 
 @Service
 public class AdminUserServiceImpl implements AdminUserService {
@@ -61,5 +64,29 @@ public class AdminUserServiceImpl implements AdminUserService {
         if (result != 1) {
             GraceException.display(ResponseStatusEnum.ADMIN_CREATE_ERROR);
         }
+    }
+
+    @Override
+    public PagedGridResult queryAdminList(Integer page, Integer pageSize) {
+        Example adminExample = new Example(AdminUser.class);
+        adminExample.orderBy("createdTime").desc();
+
+        // 开启分页
+        PageHelper.startPage(page, pageSize);
+        List<AdminUser> adminUsersList = adminUserMapper.selectByExample(adminExample);
+
+        return setPagedGrid(adminUsersList, page);
+    }
+
+    private PagedGridResult setPagedGrid(List<?> adminUsersList, Integer page) {
+        PageInfo<?> pageInfo = new PageInfo<>(adminUsersList);
+
+        PagedGridResult pagedGridResult = new PagedGridResult();
+        pagedGridResult.setRows(adminUsersList);
+        pagedGridResult.setPage(page);
+        pagedGridResult.setRecords(pageInfo.getPages());
+        pagedGridResult.setTotal(pageInfo.getTotal());
+
+        return pagedGridResult;
     }
 }

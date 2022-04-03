@@ -2,6 +2,7 @@ package com.xunmiw.admin.service;
 
 import com.xunmiw.pojo.AdminUser;
 import com.xunmiw.pojo.bo.NewAdminBO;
+import com.xunmiw.utils.PagedGridResult;
 
 public interface AdminUserService {
 
@@ -17,4 +18,11 @@ public interface AdminUserService {
      * @param newAdminBO
      */
     public void createAdminUser(NewAdminBO newAdminBO);
+
+    /**
+     * 分页查询admin列表
+     * @param page
+     * @param pageSize
+     */
+    public PagedGridResult queryAdminList(Integer page, Integer pageSize);
 }
