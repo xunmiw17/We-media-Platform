@@ -8,7 +8,9 @@ import com.xunmiw.grace.result.GraceJSONResult;
 import com.xunmiw.grace.result.ResponseStatusEnum;
 import com.xunmiw.pojo.AdminUser;
 import com.xunmiw.pojo.bo.AdminLoginBO;
+import com.xunmiw.pojo.bo.NewAdminBO;
 import com.xunmiw.utils.RedisOperator;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +20,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
 import java.util.Map;
 import java.util.UUID;
 
@@ -34,7 +35,7 @@ public class AdminManageController extends BaseController implements AdminManage
     private RedisOperator redisOperator;
 
     @Override
-    public GraceJSONResult adminLogin(@Valid AdminLoginBO adminLoginBO,
+    public GraceJSONResult adminLogin(AdminLoginBO adminLoginBO,
                                       BindingResult result,
                                       HttpServletRequest request,
                                       HttpServletResponse response) {
@@ -65,6 +66,40 @@ public class AdminManageController extends BaseController implements AdminManage
     @Override
     public GraceJSONResult adminIsExist(String username) {
         checkAdminExist(username);
+        return GraceJSONResult.ok();
+    }
+
+    @Override
+    public GraceJSONResult addNewAdmin(NewAdminBO newAdminBO,
+                                       BindingResult result,
+                                       HttpServletRequest request,
+                                       HttpServletResponse response) {
+        // 0. 验证BO中的用户名/密码不为空
+        if (result.hasErrors()) {
+            Map<String, String> errors = getErrors(result);
+            return GraceJSONResult.errorMap(errors);
+        }
+
+        // 1. Base64不为空，则代表人脸入库，否则需要用户输入密码和确认密码
+        if (StringUtils.isBlank(newAdminBO.getImg64())) {
+            if (StringUtils.isBlank(newAdminBO.getPassword()) ||
+                StringUtils.isBlank(newAdminBO.getConfirmPassword())) {
+                return GraceJSONResult.errorCustom(ResponseStatusEnum.ADMIN_PASSWORD_NULL_ERROR);
+            }
+        }
+
+        // 2. 密码不为空，则判断两次输入必须一致
+        if (StringUtils.isNotBlank(newAdminBO.getPassword())) {
+            if (!newAdminBO.getPassword().equals(newAdminBO.getConfirmPassword())) {
+                return GraceJSONResult.errorCustom(ResponseStatusEnum.ADMIN_PASSWORD_ERROR);
+            }
+        }
+
+        // 3. 校验用户名唯一（尽管前端在输入框会调用Event提醒，但用户仍可以传入存在的用户名）
+        checkAdminExist(newAdminBO.getUsername());
+
+        // 4. 调用service，存入admin信息
+        adminUserService.createAdminUser(newAdminBO);
         return GraceJSONResult.ok();
     }
 
