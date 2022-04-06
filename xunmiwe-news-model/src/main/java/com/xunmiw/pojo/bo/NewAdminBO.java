@@ -1,7 +1,6 @@
 package com.xunmiw.pojo.bo;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 
 /**
  * 添加管理人员的BO

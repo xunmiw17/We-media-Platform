@@ -6,6 +6,9 @@ import com.xunmiw.utils.RedisOperator;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+
 public class BaseInterceptor {
 
     public static final String REDIS_USER_TOKEN = "redis_user_token";
@@ -30,5 +33,20 @@ public class BaseInterceptor {
             return false;
         }
         return true;
+    }
+
+    // 从cookie中取值
+    public String getCookie(HttpServletRequest request, String key) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies == null) {
+            return null;
+        }
+        for(Cookie cookie : cookies){
+            if(cookie.getName().equals(key)){
+                String value = cookie.getValue();
+                return value;
+            }
+        }
+        return null;
     }
 }

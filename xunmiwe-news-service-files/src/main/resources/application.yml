@@ -27,6 +27,10 @@ spring:
     multipart:
       max-file-size: 512000       # 请求的文件大小限制为500KB
       max-request-size: 512000
+  data:
+    mongodb:
+      uri: mongodb://root:root@10.18.185.191:27017
+      database: xunmiwe-news
 
 ############################################################
 #

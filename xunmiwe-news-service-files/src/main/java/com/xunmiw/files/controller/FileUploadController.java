@@ -1,17 +1,33 @@
 package com.xunmiw.files.controller;
 
+import com.mongodb.client.gridfs.GridFSBucket;
+import com.mongodb.client.gridfs.GridFSFindIterable;
+import com.mongodb.client.gridfs.model.GridFSFile;
+import com.mongodb.client.model.Filters;
 import com.xunmiw.api.controller.files.FileUploadControllerApi;
+import com.xunmiw.exception.GraceException;
 import com.xunmiw.files.resource.FileResource;
 import com.xunmiw.files.service.UploadService;
 import com.xunmiw.grace.result.GraceJSONResult;
 import com.xunmiw.grace.result.ResponseStatusEnum;
+import com.xunmiw.pojo.bo.NewAdminBO;
+import com.xunmiw.utils.FileUtils;
 import com.xunmiw.utils.extend.AliImageReviewUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import sun.misc.BASE64Decoder;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 
 @RestController
 public class FileUploadController implements FileUploadControllerApi {
@@ -27,6 +43,9 @@ public class FileUploadController implements FileUploadControllerApi {
 
     @Autowired
     private AliImageReviewUtils aliImageReviewUtils;
+
+    @Autowired
+    private GridFSBucket gridFSBucket;
 
     @Override
     public GraceJSONResult uploadFace(String userId, MultipartFile file) throws Exception {
@@ -73,6 +92,38 @@ public class FileUploadController implements FileUploadControllerApi {
         return GraceJSONResult.ok(finalPath);
     }
 
+    @Override
+    public GraceJSONResult uploadToGridFS(NewAdminBO newAdminBO) throws Exception {
+        // 获得图片的base64字符串
+        String base64 = newAdminBO.getImg64();
+        // 将base64字符串转换为byte数组
+        byte[] bytes = new BASE64Decoder().decodeBuffer(base64.trim());
+        // 转换为输入流
+        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(bytes);
+        // 将admin用户名（唯一）.png作为文件名上传至GridFS Bucket中
+        ObjectId fileId = gridFSBucket.uploadFromStream(newAdminBO.getUsername() + ".png", byteArrayInputStream);
+        // 获得文件在GridFS的主键id
+        String fileIdStr = fileId.toString();
+        // 返回文件在GridFS的主键id
+        return GraceJSONResult.ok(fileIdStr);
+    }
+
+    @Override
+    public void readInGridFS(String faceId,
+                             HttpServletRequest request,
+                             HttpServletResponse response) throws Exception {
+        // 0. 判断参数
+        if (StringUtils.isBlank(faceId) || faceId.equals("null")) {
+            GraceException.display(ResponseStatusEnum.FILE_NOT_EXIST_ERROR);
+        }
+
+        // 1. 从GridFS中读取
+        File adminFace = readGridFSByFaceId(faceId);
+
+        // 2. 把人脸图片输出到浏览器
+        FileUtils.downloadFileByStream(response, adminFace);
+    }
+
     private String doAliImageReview(String pendingImageUrl) {
         boolean result = false;
 
@@ -93,5 +144,28 @@ public class FileUploadController implements FileUploadControllerApi {
         }
 
         return pendingImageUrl;
+    }
+
+    private File readGridFSByFaceId(String faceId) throws Exception {
+        GridFSFindIterable gridFSFiles = gridFSBucket.find(Filters.eq("_id", new ObjectId(faceId)));
+        GridFSFile gridFSFile = gridFSFiles.first();
+        if (gridFSFile == null) {
+            GraceException.display(ResponseStatusEnum.FILE_NOT_EXIST_ERROR);
+        }
+
+        String fileName = gridFSFile.getFilename();
+
+        // 获取文件流，保存文件到本地或者服务器的临时目录
+        File fileTemp = new File("/Users/wuxunmin/Documents/xunmiwe-news/temp_face");
+        if (!fileTemp.exists()) {
+            fileTemp.mkdirs();
+        }
+        File myFile = new File("/Users/wuxunmin/Documents/xunmiwe-news/temp_face/" + fileName);
+
+        // 创建文件输出流
+        OutputStream os = new FileOutputStream(myFile);
+        // 下载到服务器或者本地
+        gridFSBucket.downloadToStream(new ObjectId(faceId), os);
+        return myFile;
     }
 }
