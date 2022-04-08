@@ -3,21 +3,25 @@ package com.xunmiw.admin.controller;
 import com.xunmiw.admin.service.AdminUserService;
 import com.xunmiw.api.BaseController;
 import com.xunmiw.api.controller.admin.AdminManageControllerApi;
+import com.xunmiw.enums.FaceVerifyType;
 import com.xunmiw.exception.GraceException;
 import com.xunmiw.grace.result.GraceJSONResult;
 import com.xunmiw.grace.result.ResponseStatusEnum;
 import com.xunmiw.pojo.AdminUser;
 import com.xunmiw.pojo.bo.AdminLoginBO;
 import com.xunmiw.pojo.bo.NewAdminBO;
+import com.xunmiw.utils.FaceVerifyUtils;
 import com.xunmiw.utils.PagedGridResult;
 import com.xunmiw.utils.RedisOperator;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -34,6 +38,12 @@ public class AdminManageController extends BaseController implements AdminManage
 
     @Autowired
     private RedisOperator redisOperator;
+
+    @Autowired
+    private RestTemplate restTemplate;
+
+    @Autowired
+    private FaceVerifyUtils faceVerifyUtils;
 
     @Override
     public GraceJSONResult adminLogin(AdminLoginBO adminLoginBO,
@@ -126,6 +136,41 @@ public class AdminManageController extends BaseController implements AdminManage
         deleteCookie(request, response, "aid");
         deleteCookie(request, response, "aname");
 
+        return GraceJSONResult.ok();
+    }
+
+    @Override
+    public GraceJSONResult adminFaceLogin(AdminLoginBO adminLoginBO, HttpServletRequest request, HttpServletResponse response) {
+        // 0. 判断用户名和人脸信息不能为空
+        if (StringUtils.isBlank(adminLoginBO.getUsername())) {
+            return GraceJSONResult.errorCustom(ResponseStatusEnum.ADMIN_USERNAME_NULL_ERROR);
+        }
+        String base64Client = adminLoginBO.getImg64();
+        if (StringUtils.isBlank(base64Client)) {
+            return GraceJSONResult.errorCustom(ResponseStatusEnum.ADMIN_FACE_NULL_ERROR);
+        }
+
+        // 1. 从数据库中查询faceId
+        AdminUser adminUser = adminUserService.queryAdminByUsername(adminLoginBO.getUsername());
+        String faceId = adminUser.getFaceId();
+        if (StringUtils.isBlank(faceId)) {
+            return GraceJSONResult.errorCustom(ResponseStatusEnum.ADMIN_FACE_LOGIN_ERROR);
+        }
+
+        // 2. 请求文件服务，获得人脸数据的base64数据
+        String readFace64Url = "http://files.imoocnews.com:8004/fs/readFace64InGridFS?faceId=" + faceId;
+        ResponseEntity<GraceJSONResult> responseEntity = restTemplate.getForEntity(readFace64Url, GraceJSONResult.class);
+        GraceJSONResult body = responseEntity.getBody();
+        String base64DB = (String) body.getData();
+
+        // 3. 调用阿里AI进行人脸对比识别，判断可信度，实现人脸登录
+        boolean result = faceVerifyUtils.faceVerify(FaceVerifyType.BASE64.type, base64Client, base64DB, 60);
+        if (!result) {
+            return GraceJSONResult.errorCustom(ResponseStatusEnum.ADMIN_FACE_LOGIN_ERROR);
+        }
+
+        // 4. admin登录后的数据设置，Redis与Cookie
+        doLoginSettings(adminUser, request, response);
         return GraceJSONResult.ok();
     }
 

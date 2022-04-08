@@ -124,6 +124,19 @@ public class FileUploadController implements FileUploadControllerApi {
         FileUtils.downloadFileByStream(response, adminFace);
     }
 
+    @Override
+    public GraceJSONResult readFace64InGridFS(String faceId,
+                                              HttpServletRequest request,
+                                              HttpServletResponse response) throws Exception {
+        // 0. 获得GridFS中的人脸文件
+        File myFace = readGridFSByFaceId(faceId);
+
+        // 1. 转换人脸为base64
+        String base64 = FileUtils.fileToBase64(myFace);
+
+        return GraceJSONResult.ok(base64);
+    }
+
     private String doAliImageReview(String pendingImageUrl) {
         boolean result = false;
 
