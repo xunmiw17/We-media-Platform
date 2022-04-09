@@ -47,6 +47,9 @@ public class InterceptorConfig implements WebMvcConfigurer {
                 .addPathPatterns("/adminMng/addNewAdmin")
                 .addPathPatterns("/adminMng/getAdminList")
                 .addPathPatterns("/fs/uploadToGridFS")
-                .addPathPatterns("/fs/readInGridFS");
+                .addPathPatterns("/fs/readInGridFS")
+                .addPathPatterns("/friendLinkMng/saveOrUpdateFriendLink")
+                .addPathPatterns("/friendLinkMng/getFriendLinkList")
+                .addPathPatterns("/friendLinkMng/delete");
     }
 }

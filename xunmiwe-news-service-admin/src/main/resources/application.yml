@@ -38,6 +38,10 @@ spring:
   jackson:
     date-format: yyyy-MM-dd HH:mm:ss
     time-zone: GMT+8
+  data:
+    mongodb:
+      uri: mongodb://root:root@10.18.185.191:27017
+      database: xunmiwe-news
 
 ############################################################
 #
