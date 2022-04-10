@@ -1,9 +1,9 @@
 package com.xunmiw.admin.service.impl;
 
 import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
 import com.xunmiw.admin.mapper.AdminUserMapper;
 import com.xunmiw.admin.service.AdminUserService;
+import com.xunmiw.api.service.BaseService;
 import com.xunmiw.exception.GraceException;
 import com.xunmiw.grace.result.ResponseStatusEnum;
 import com.xunmiw.pojo.AdminUser;
@@ -21,7 +21,7 @@ import java.util.Date;
 import java.util.List;
 
 @Service
-public class AdminUserServiceImpl implements AdminUserService {
+public class AdminUserServiceImpl extends BaseService implements AdminUserService {
 
     @Autowired
     private AdminUserMapper adminUserMapper;
@@ -76,17 +76,5 @@ public class AdminUserServiceImpl implements AdminUserService {
         List<AdminUser> adminUsersList = adminUserMapper.selectByExample(adminExample);
 
         return setPagedGrid(adminUsersList, page);
-    }
-
-    private PagedGridResult setPagedGrid(List<?> adminUsersList, Integer page) {
-        PageInfo<?> pageInfo = new PageInfo<>(adminUsersList);
-
-        PagedGridResult pagedGridResult = new PagedGridResult();
-        pagedGridResult.setRows(adminUsersList);
-        pagedGridResult.setPage(page);
-        pagedGridResult.setRecords(pageInfo.getPages());
-        pagedGridResult.setTotal(pageInfo.getTotal());
-
-        return pagedGridResult;
     }
 }
