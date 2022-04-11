@@ -20,4 +20,11 @@ public interface AppUserMngService {
      */
     public PagedGridResult queryAllUserList(String nickname, Integer status, Date startDate, Date endDate,
                                             Integer page, Integer pageSize);
+
+    /**
+     * 冻结/解冻用户账号
+     * @param userId
+     * @param status
+     */
+    public void freezeUserOrNot(String userId, Integer status);
 }

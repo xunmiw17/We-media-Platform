@@ -10,6 +10,7 @@ import com.xunmiw.utils.PagedGridResult;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import tk.mybatis.mapper.entity.Example;
 
 import java.util.Date;
@@ -43,5 +44,15 @@ public class AppUserMngServiceImpl extends BaseService implements AppUserMngServ
         PageHelper.startPage(page, pageSize);
         List<AppUser> appUsers = appUserMapper.selectByExample(example);
         return setPagedGrid(appUsers, page);
+    }
+
+    @Override
+    @Transactional
+    public void freezeUserOrNot(String userId, Integer status) {
+        AppUser appUser = new AppUser();
+        appUser.setId(userId);
+        appUser.setActiveStatus(status);
+        // selective只更新对应状态
+        appUserMapper.updateByPrimaryKeySelective(appUser);
     }
 }
