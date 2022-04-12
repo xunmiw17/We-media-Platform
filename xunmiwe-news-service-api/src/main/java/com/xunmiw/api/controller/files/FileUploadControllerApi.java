@@ -14,9 +14,25 @@ import javax.servlet.http.HttpServletResponse;
 @RequestMapping("fs")
 public interface FileUploadControllerApi {
 
-    @ApiOperation(value = "上传用户头像", notes = "上传用户头像", httpMethod = "POST")
+    /**
+     * 上传单文件
+     * @param userId
+     * @param file
+     * @return
+     * @throws Exception
+     */
     @PostMapping("/uploadFace")
     public GraceJSONResult uploadFace(@RequestParam String userId, MultipartFile file) throws Exception;
+
+    /**
+     * 上传多个文件
+     * @param userId
+     * @param files
+     * @return
+     * @throws Exception
+     */
+    @PostMapping("/uploadSomeFiles")
+    public GraceJSONResult uploadSomeFiles(@RequestParam String userId, MultipartFile[] files) throws Exception;
 
     /**
      * 文件上传到MongoDB的GridFS中

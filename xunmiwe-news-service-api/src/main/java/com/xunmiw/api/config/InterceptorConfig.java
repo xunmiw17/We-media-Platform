@@ -39,9 +39,10 @@ public class InterceptorConfig implements WebMvcConfigurer {
         registry.addInterceptor(userTokenInterceptor())
                 .addPathPatterns("/user/getAccountInfo")
                 .addPathPatterns("/user/updateUserInfo")
-                .addPathPatterns("/fs/uploadFace");
-        // registry.addInterceptor(userActiveInterceptor())
-        //         .addPathPatterns("/user/getAccountInfo");
+                .addPathPatterns("/fs/uploadFace")
+                .addPathPatterns("/fs/uploadSomeFiles");
+        registry.addInterceptor(userActiveInterceptor())
+                .addPathPatterns("/user/getAccountInfo");
         registry.addInterceptor(adminTokenInterceptor())
                 .addPathPatterns("/adminMng/adminIsExist")
                 .addPathPatterns("/adminMng/addNewAdmin")

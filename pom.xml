@@ -14,6 +14,7 @@
         <module>xunmiwe-news-service-user</module>
         <module>xunmiwe-news-service-files</module>
         <module>xunmiwe-news-service-admin</module>
+        <module>xunmiwe-news-service-article</module>
     </modules>
 
     <!--

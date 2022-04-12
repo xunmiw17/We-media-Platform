@@ -28,6 +28,8 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 public class FileUploadController implements FileUploadControllerApi {
@@ -90,6 +92,59 @@ public class FileUploadController implements FileUploadControllerApi {
         // 文件审核代码，因为未开通阿里云内容安全服务无法使用
         // return GraceJSONResult.ok(doAliImageReview(finalPath));
         return GraceJSONResult.ok(finalPath);
+    }
+
+    @Override
+    public GraceJSONResult uploadSomeFiles(String userId, MultipartFile[] files) throws Exception {
+
+        // 声明List，用于存放多个文件的地址路径，返回到前端
+        List<String> imageUrlList = new ArrayList<>();
+        if (files != null && files.length != 0) {
+            // 对于每个file，做文件上传
+            for (MultipartFile file : files) {
+                String path = "";
+                if (file != null) {
+                    // 获得文件上传的名称
+                    String fileName = file.getOriginalFilename();
+
+                    // 判断文件名不能为空
+                    if (StringUtils.isNotBlank(fileName)) {
+                        // 获得文件名后缀，以作为参数传入service
+                        String[] fileNameArr = fileName.split("\\.");
+                        String suffix = fileNameArr[fileNameArr.length - 1];
+
+                        // 判断后缀符合我们的预定义规范，只能是png、jpg、jpeg三个格式之一
+                        if (!suffix.equals("png") &&
+                                !suffix.equals("jpg") &&
+                                !suffix.equals("jpeg")
+                        ) {
+                            continue;
+                        }
+
+                        // 执行上传
+                        //path = uploadService.uploadFdfs(file, suffix);
+                        path = uploadService.uploadOss(file, userId, suffix);
+
+                    } else {
+                        continue;
+                    }
+                } else {
+                    continue;
+                }
+
+                logger.info("path = " + path);
+
+                String finalPath = "";
+                if (StringUtils.isNotBlank(path)) {
+                    finalPath = fileResource.getOssHost() + path;
+                } else {
+                    continue;
+                }
+                // 放入到imageUrlList之前，需要对图片做一次审核
+                imageUrlList.add(finalPath);
+            }
+        }
+        return GraceJSONResult.ok(imageUrlList);
     }
 
     @Override
