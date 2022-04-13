@@ -7,13 +7,13 @@ import com.xunmiw.grace.result.GraceJSONResult;
 import com.xunmiw.grace.result.ResponseStatusEnum;
 import com.xunmiw.pojo.Category;
 import com.xunmiw.pojo.bo.CategoryBO;
-import com.xunmiw.utils.JsonUtils;
-import org.apache.commons.lang3.StringUtils;
+import com.xunmiw.pojo.vo.CategoryVO;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -25,15 +25,7 @@ public class CategoryMngController extends BaseController implements CategoryMng
 
     @Override
     public GraceJSONResult getCatList() {
-        String categoryList = redisOperator.get(REDIS_CATEGORY_LIST);
-        List<Category> categories = null;
-        if (StringUtils.isNotBlank(categoryList)) {
-            categories = JsonUtils.jsonToList(categoryList, Category.class);
-        } else {
-            categories = categoryMngService.getCatList();
-            redisOperator.set(REDIS_CATEGORY_LIST, JsonUtils.objectToJson(categories));
-        }
-        return GraceJSONResult.ok(categories);
+        return GraceJSONResult.ok(categoryMngService.getCatList());
     }
 
     @Override
@@ -56,5 +48,18 @@ public class CategoryMngController extends BaseController implements CategoryMng
             categoryMngService.updateCategory(category);
         }
         return GraceJSONResult.ok();
+    }
+
+    @Override
+    public GraceJSONResult getCats() {
+        List<Category> categories = categoryMngService.getCatList();
+
+        List<CategoryVO> categoryVOs = new ArrayList<>();
+        for (Category category : categories) {
+            CategoryVO categoryVO = new CategoryVO();
+            BeanUtils.copyProperties(category, categoryVO);
+            categoryVOs.add(categoryVO);
+        }
+        return GraceJSONResult.ok(categoryVOs);
     }
 }

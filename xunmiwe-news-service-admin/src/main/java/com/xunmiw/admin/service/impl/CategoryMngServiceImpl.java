@@ -4,7 +4,9 @@ import com.xunmiw.admin.mapper.CategoryMapper;
 import com.xunmiw.admin.service.CategoryMngService;
 import com.xunmiw.api.service.BaseService;
 import com.xunmiw.pojo.Category;
+import com.xunmiw.utils.JsonUtils;
 import com.xunmiw.utils.RedisOperator;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,7 +25,16 @@ public class CategoryMngServiceImpl extends BaseService implements CategoryMngSe
 
     @Override
     public List<Category> getCatList() {
-        List<Category> categories = categoryMapper.selectAll();
+        List<Category> categories = null;
+
+        // 先从Redis中查询文章列表，如果有则直接返回，如果为空则查询数据后后放入缓存再返回
+        String categoryJson = redisOperator.get(REDIS_CATEGORY_LIST);
+        if (StringUtils.isNotBlank(categoryJson)) {
+            categories = JsonUtils.jsonToList(categoryJson, Category.class);
+        } else {
+            categories = categoryMapper.selectAll();
+            redisOperator.set(REDIS_CATEGORY_LIST, JsonUtils.objectToJson(categories));
+        }
         return categories;
     }
 
@@ -31,7 +42,6 @@ public class CategoryMngServiceImpl extends BaseService implements CategoryMngSe
     @Transactional
     public void createCategory(Category category) {
         categoryMapper.insert(category);
-
         redisOperator.del(REDIS_CATEGORY_LIST);
     }
 
@@ -39,7 +49,6 @@ public class CategoryMngServiceImpl extends BaseService implements CategoryMngSe
     @Transactional
     public void updateCategory(Category category) {
         categoryMapper.updateByPrimaryKey(category);
-
         redisOperator.del(REDIS_CATEGORY_LIST);
     }
 
