@@ -1,6 +1,11 @@
 package com.xunmiw.api;
 
+import com.xunmiw.grace.result.GraceJSONResult;
+import com.xunmiw.grace.result.ResponseStatusEnum;
+import com.xunmiw.pojo.Category;
+import com.xunmiw.utils.JsonUtils;
 import com.xunmiw.utils.RedisOperator;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.validation.BindingResult;
@@ -82,5 +87,15 @@ public class BaseController {
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
+    }
+
+    public Category checkCategory(String jsonCategories, Integer catId) {
+        List<Category> categories = JsonUtils.jsonToList(jsonCategories, Category.class);
+        for (Category category : categories) {
+            if (category.getId() == catId) {
+                return category;
+            }
+        }
+        return null;
     }
 }
