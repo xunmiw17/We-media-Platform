@@ -8,11 +8,13 @@ import com.xunmiw.grace.result.GraceJSONResult;
 import com.xunmiw.grace.result.ResponseStatusEnum;
 import com.xunmiw.pojo.Category;
 import com.xunmiw.pojo.bo.ArticleBO;
+import com.xunmiw.utils.PagedGridResult;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Date;
 import java.util.Map;
 
 @RestController
@@ -47,5 +49,21 @@ public class ArticleController extends BaseController implements ArticleControll
         }
         articleService.createArticle(articleBO);
         return GraceJSONResult.ok();
+    }
+
+    @Override
+    public GraceJSONResult queryMyList(String userId, String keyword, Integer status,
+                                       Date startDate, Date endDate, Integer page, Integer pageSize) {
+        if (StringUtils.isBlank(userId)) {
+            return GraceJSONResult.errorCustom(ResponseStatusEnum.ARTICLE_QUERY_PARAMS_ERROR);
+        }
+        if (page == null)
+            page = DEFAULT_START_PAGE;
+        if (pageSize == null)
+            pageSize = DEFAULT_PAGE_SIZE;
+
+        // 查询我的列表，调用service
+        PagedGridResult result = articleService.queryMyArticles(userId, keyword, status, startDate, endDate, page, pageSize);
+        return GraceJSONResult.ok(result);
     }
 }
