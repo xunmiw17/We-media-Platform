@@ -6,6 +6,7 @@ import com.xunmiw.article.mapper.ArticleMapper;
 import com.xunmiw.article.mapper.ArticleMapperCustom;
 import com.xunmiw.article.service.ArticleService;
 import com.xunmiw.enums.ArticleAppointType;
+import com.xunmiw.enums.ArticleReviewLevel;
 import com.xunmiw.enums.ArticleReviewStatus;
 import com.xunmiw.enums.YesOrNo;
 import com.xunmiw.exception.GraceException;
@@ -13,6 +14,7 @@ import com.xunmiw.grace.result.ResponseStatusEnum;
 import com.xunmiw.pojo.Article;
 import com.xunmiw.pojo.bo.ArticleBO;
 import com.xunmiw.utils.PagedGridResult;
+import com.xunmiw.utils.extend.AliTextReviewUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.n3r.idworker.Sid;
 import org.springframework.beans.BeanUtils;
@@ -36,6 +38,9 @@ public class ArticleServiceImpl extends BaseService implements ArticleService {
     @Autowired
     private Sid sid;
 
+    @Autowired
+    private AliTextReviewUtils aliTextReviewUtils;
+
     @Override
     @Transactional
     public void createArticle(ArticleBO articleBO) {
@@ -55,6 +60,19 @@ public class ArticleServiceImpl extends BaseService implements ArticleService {
         if (result != 1) {
             GraceException.display(ResponseStatusEnum.ARTICLE_CREATE_ERROR);
         }
+
+        // // 通过阿里智能AI实现对文章文本的自动检测
+        // String reviewTextResult = aliTextReviewUtils.reviewTextContent(articleBO.getContent());
+        // if (reviewTextResult.equals(ArticleReviewLevel.PASS.type)) {
+        //     // 修改文章状态为审核通过
+        //     updateArticleStatus(article.getId(), ArticleReviewStatus.SUCCESS.type);
+        // } else if (reviewTextResult.equals(ArticleReviewLevel.REVIEW.type)) {
+        //     // 修改文章状态为需要人工审核
+        //     updateArticleStatus(article.getId(), ArticleReviewStatus.WAITING_MANUAL.type);
+        // } else if (reviewTextResult.equals(ArticleReviewLevel.BLOCK.type)) {
+        //     // 修改文章状态为审核未通过
+        //     updateArticleStatus(article.getId(), ArticleReviewStatus.FAILED.type);
+        // }
     }
 
     @Override
@@ -90,5 +108,21 @@ public class ArticleServiceImpl extends BaseService implements ArticleService {
         PageHelper.startPage(page, pageSize);
         List<Article> articles = articleMapper.selectByExample(example);
         return setPagedGrid(articles, page);
+    }
+
+    @Override
+    @Transactional
+    public void updateArticleStatus(String articleId, Integer pendingStatus) {
+        Example example = new Example(Article.class);
+        Example.Criteria criteria = example.createCriteria();
+        criteria.andEqualTo("id", articleId);
+
+        Article article = new Article();
+        article.setArticleStatus(pendingStatus);
+
+        int result = articleMapper.updateByExampleSelective(article, example);
+        if (result != 1) {
+            GraceException.display(ResponseStatusEnum.ARTICLE_REVIEW_ERROR);
+        }
     }
 }

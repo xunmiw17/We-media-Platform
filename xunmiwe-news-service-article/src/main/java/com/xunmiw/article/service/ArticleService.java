@@ -31,4 +31,11 @@ public interface ArticleService {
      */
     PagedGridResult queryMyArticles(String userId, String keyword, Integer status,
                                     Date startDate, Date endDate, Integer page, Integer pageSize);
+
+    /**
+     * 更改文章状态
+     * @param articleId
+     * @param pendingStatus
+     */
+    public void updateArticleStatus(String articleId, Integer pendingStatus);
 }
