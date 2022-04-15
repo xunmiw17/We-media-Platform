@@ -6,7 +6,6 @@ import com.xunmiw.article.mapper.ArticleMapper;
 import com.xunmiw.article.mapper.ArticleMapperCustom;
 import com.xunmiw.article.service.ArticleService;
 import com.xunmiw.enums.ArticleAppointType;
-import com.xunmiw.enums.ArticleReviewLevel;
 import com.xunmiw.enums.ArticleReviewStatus;
 import com.xunmiw.enums.YesOrNo;
 import com.xunmiw.exception.GraceException;
@@ -73,6 +72,20 @@ public class ArticleServiceImpl extends BaseService implements ArticleService {
         //     // 修改文章状态为审核未通过
         //     updateArticleStatus(article.getId(), ArticleReviewStatus.FAILED.type);
         // }
+
+        // 模拟阿里智能文本检测，随机生成文章状态，用于测试
+        // Random random = new Random();
+        // double rand = random.nextDouble();
+        // if (rand < 0.15) {
+        //     updateArticleStatus(article.getId(), ArticleReviewStatus.FAILED.type);
+        // } else if (rand < 0.35) {
+        //     updateArticleStatus(article.getId(), ArticleReviewStatus.WAITING_MANUAL.type);
+        // } else {
+        //     updateArticleStatus(article.getId(), ArticleReviewStatus.SUCCESS.type);
+        // }
+
+        // 不进行AI文本检测，直接进入人工审核
+        updateArticleStatus(article.getId(), ArticleReviewStatus.WAITING_MANUAL.type);
     }
 
     @Override
@@ -123,6 +136,42 @@ public class ArticleServiceImpl extends BaseService implements ArticleService {
         int result = articleMapper.updateByExampleSelective(article, example);
         if (result != 1) {
             GraceException.display(ResponseStatusEnum.ARTICLE_REVIEW_ERROR);
+        }
+    }
+
+    @Override
+    public PagedGridResult queryAllList(Integer status, Integer page, Integer pageSize) {
+        Example example = new Example(Article.class);
+        example.orderBy("createTime").desc();
+        Example.Criteria criteria = example.createCriteria();
+        if (ArticleReviewStatus.isArticleStatusValid(status)) {
+            criteria.andEqualTo("articleStatus", status);
+        }
+        if (status != null && status == 12) {
+            criteria.andEqualTo("articleStatus", ArticleReviewStatus.REVIEWING.type)
+                    .orEqualTo("articleStatus", ArticleReviewStatus.WAITING_MANUAL.type);
+        }
+        criteria.andEqualTo("isDelete", YesOrNo.NO.type);
+
+        PageHelper.startPage(page, pageSize);
+        List<Article> articles = articleMapper.selectByExample(example);
+
+        return setPagedGrid(articles, page);
+    }
+
+    @Override
+    public void deleteArticle(String userId, String articleId) {
+        Example example = new Example(Article.class);
+        Example.Criteria criteria = example.createCriteria();
+        criteria.andEqualTo("publishUserId", userId);
+        criteria.andEqualTo("id", articleId);
+
+        Article article = new Article();
+        article.setIsDelete(YesOrNo.YES.type);
+
+        int result = articleMapper.updateByExampleSelective(article, example);
+        if (result != 1) {
+            GraceException.display(ResponseStatusEnum.ARTICLE_DELETE_ERROR);
         }
     }
 }

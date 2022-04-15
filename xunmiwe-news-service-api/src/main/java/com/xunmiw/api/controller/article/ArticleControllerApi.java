@@ -2,6 +2,7 @@ package com.xunmiw.api.controller.article;
 
 import com.xunmiw.grace.result.GraceJSONResult;
 import com.xunmiw.pojo.bo.ArticleBO;
+import com.xunmiw.utils.PagedGridResult;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.validation.BindingResult;
@@ -30,4 +31,22 @@ public interface ArticleControllerApi {
                                        @RequestParam Date endDate,
                                        @RequestParam Integer page,
                                        @RequestParam Integer pageSize);
+
+    @ApiOperation(value = "用于admin显示文章列表", notes = "用于admin显示文章列表", httpMethod = "POST")
+    @PostMapping("queryAllList")
+    public GraceJSONResult queryAllList(@RequestParam Integer status,
+                                        @RequestParam Integer page,
+                                        @RequestParam Integer pageSize);
+
+    @ApiOperation(value = "admin文章审核", notes = "admin文章审核", httpMethod = "POST")
+    @PostMapping("doReview")
+    public GraceJSONResult doReview(@RequestParam String articleId, @RequestParam Integer passOrNot);
+
+    @ApiOperation(value = "删除文章", notes = "删除文章", httpMethod = "POST")
+    @PostMapping("delete")
+    public GraceJSONResult delete(@RequestParam String userId, @RequestParam String articleId);
+
+    @ApiOperation(value = "撤回文章", notes = "撤回文章", httpMethod = "POST")
+    @PostMapping("withdraw")
+    public GraceJSONResult withdraw(@RequestParam String userId, @RequestParam String articleId);
 }

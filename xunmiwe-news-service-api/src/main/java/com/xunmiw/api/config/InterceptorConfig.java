@@ -40,7 +40,11 @@ public class InterceptorConfig implements WebMvcConfigurer {
                 .addPathPatterns("/user/getAccountInfo")
                 .addPathPatterns("/user/updateUserInfo")
                 .addPathPatterns("/fs/uploadFace")
-                .addPathPatterns("/fs/uploadSomeFiles");
+                .addPathPatterns("/fs/uploadSomeFiles")
+                .addPathPatterns("/article/createArticle")
+                .addPathPatterns("/article/queryMyList")
+                .addPathPatterns("/article/delete")
+                .addPathPatterns("/article/withdraw");
         registry.addInterceptor(userActiveInterceptor())
                 .addPathPatterns("/user/getAccountInfo");
         registry.addInterceptor(adminTokenInterceptor())
@@ -51,6 +55,8 @@ public class InterceptorConfig implements WebMvcConfigurer {
                 .addPathPatterns("/fs/readInGridFS")
                 .addPathPatterns("/friendLinkMng/saveOrUpdateFriendLink")
                 .addPathPatterns("/friendLinkMng/getFriendLinkList")
-                .addPathPatterns("/friendLinkMng/delete");
+                .addPathPatterns("/friendLinkMng/delete")
+                .addPathPatterns("/article/queryAllList")
+                .addPathPatterns("/article/doReview");
     }
 }

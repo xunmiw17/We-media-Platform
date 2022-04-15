@@ -4,6 +4,8 @@ import com.xunmiw.api.BaseController;
 import com.xunmiw.api.controller.article.ArticleControllerApi;
 import com.xunmiw.article.service.ArticleService;
 import com.xunmiw.enums.ArticleCoverType;
+import com.xunmiw.enums.ArticleReviewStatus;
+import com.xunmiw.enums.YesOrNo;
 import com.xunmiw.grace.result.GraceJSONResult;
 import com.xunmiw.grace.result.ResponseStatusEnum;
 import com.xunmiw.pojo.Category;
@@ -54,9 +56,6 @@ public class ArticleController extends BaseController implements ArticleControll
     @Override
     public GraceJSONResult queryMyList(String userId, String keyword, Integer status,
                                        Date startDate, Date endDate, Integer page, Integer pageSize) {
-        if (StringUtils.isBlank(userId)) {
-            return GraceJSONResult.errorCustom(ResponseStatusEnum.ARTICLE_QUERY_PARAMS_ERROR);
-        }
         if (page == null)
             page = DEFAULT_START_PAGE;
         if (pageSize == null)
@@ -65,5 +64,42 @@ public class ArticleController extends BaseController implements ArticleControll
         // 查询我的列表，调用service
         PagedGridResult result = articleService.queryMyArticles(userId, keyword, status, startDate, endDate, page, pageSize);
         return GraceJSONResult.ok(result);
+    }
+
+    @Override
+    public GraceJSONResult queryAllList(Integer status, Integer page, Integer pageSize) {
+        if (page == null)
+            page = DEFAULT_START_PAGE;
+        if (pageSize == null)
+            pageSize = DEFAULT_PAGE_SIZE;
+
+        PagedGridResult result = articleService.queryAllList(status, page, pageSize);
+        return GraceJSONResult.ok(result);
+    }
+
+    @Override
+    public GraceJSONResult doReview(String articleId, Integer passOrNot) {
+        if (passOrNot == YesOrNo.YES.type) {
+            // 审核成功
+            articleService.updateArticleStatus(articleId, ArticleReviewStatus.SUCCESS.type);
+        } else if (passOrNot == YesOrNo.NO.type) {
+            // 审核失败
+            articleService.updateArticleStatus(articleId, ArticleReviewStatus.FAILED.type);
+        } else {
+            return GraceJSONResult.errorCustom(ResponseStatusEnum.ARTICLE_REVIEW_ERROR);
+        }
+        return GraceJSONResult.ok();
+    }
+
+    @Override
+    public GraceJSONResult delete(String userId, String articleId) {
+        articleService.deleteArticle(userId, articleId);
+        return GraceJSONResult.ok();
+    }
+
+    @Override
+    public GraceJSONResult withdraw(String userId, String articleId) {
+        articleService.updateArticleStatus(articleId, ArticleReviewStatus.WITHDRAW.type);
+        return GraceJSONResult.ok();
     }
 }
