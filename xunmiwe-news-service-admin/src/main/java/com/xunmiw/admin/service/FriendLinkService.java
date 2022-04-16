@@ -22,4 +22,10 @@ public interface FriendLinkService {
      * 删除友情链接
      */
     public void deleteFriendLink(String linkId);
+
+    /**
+     * 首页查询友情链接（只显示状态未删除的链接）
+     * @return
+     */
+    public List<FriendLinkMO> queryUserPortalFriendLinkList();
 }

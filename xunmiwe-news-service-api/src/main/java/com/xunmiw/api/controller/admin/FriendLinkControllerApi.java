@@ -5,10 +5,7 @@ import com.xunmiw.pojo.bo.FriendLinkBO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
@@ -28,4 +25,8 @@ public interface FriendLinkControllerApi {
     @ApiOperation(value = "删除友情链接", notes = "删除友情链接", httpMethod = "POST")
     @PostMapping("delete")
     public GraceJSONResult deleteFriendList(@RequestParam String linkId);
+
+    @ApiOperation(value = "查询portal友情链接", notes = "查询portal友情链接", httpMethod = "GET")
+    @GetMapping("portal/list")
+    public GraceJSONResult queryUserPortalFriendLinkList();
 }

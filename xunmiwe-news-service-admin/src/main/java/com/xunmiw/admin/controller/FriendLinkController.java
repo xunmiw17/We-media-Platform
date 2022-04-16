@@ -53,4 +53,9 @@ public class FriendLinkController extends BaseController implements FriendLinkCo
         friendLinkService.deleteFriendLink(linkId);
         return GraceJSONResult.ok();
     }
+
+    @Override
+    public GraceJSONResult queryUserPortalFriendLinkList() {
+        return GraceJSONResult.ok(friendLinkService.queryUserPortalFriendLinkList());
+    }
 }
