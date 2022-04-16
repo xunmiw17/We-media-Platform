@@ -2,7 +2,6 @@ package com.xunmiw.api.controller.article;
 
 import com.xunmiw.grace.result.GraceJSONResult;
 import com.xunmiw.pojo.bo.ArticleBO;
-import com.xunmiw.utils.PagedGridResult;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.validation.BindingResult;
@@ -49,4 +48,6 @@ public interface ArticleControllerApi {
     @ApiOperation(value = "撤回文章", notes = "撤回文章", httpMethod = "POST")
     @PostMapping("withdraw")
     public GraceJSONResult withdraw(@RequestParam String userId, @RequestParam String articleId);
+
+
 }

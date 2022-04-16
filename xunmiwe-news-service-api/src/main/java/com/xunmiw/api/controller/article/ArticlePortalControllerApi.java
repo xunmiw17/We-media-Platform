@@ -1,0 +1,20 @@
+package com.xunmiw.api.controller.article;
+
+import com.xunmiw.grace.result.GraceJSONResult;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+@Api(value = "用户portal查询文章的Controller", tags = {"用户portal查询文章的Controller"})
+@RequestMapping("portal")
+public interface ArticlePortalControllerApi {
+
+    @ApiOperation(value = "用户portal根据类别分页查询文章列表", notes = "用户portal根据类别分页查询文章列表", httpMethod = "GET")
+    @GetMapping("article/list")
+    public GraceJSONResult queryUserPortalArticles(@RequestParam String keyword,
+                                                   @RequestParam Integer category,
+                                                   @RequestParam Integer page,
+                                                   @RequestParam Integer pageSize);
+}
