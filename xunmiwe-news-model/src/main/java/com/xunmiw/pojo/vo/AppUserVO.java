@@ -1,7 +1,5 @@
 package com.xunmiw.pojo.vo;
 
-import java.util.Date;
-
 public class AppUserVO {
 
     private String id;
@@ -39,5 +37,15 @@ public class AppUserVO {
 
     public void setActiveStatus(Integer activeStatus) {
         this.activeStatus = activeStatus;
+    }
+
+    @Override
+    public String toString() {
+        return "AppUserVO{" +
+                "id='" + id + '\'' +
+                ", nickname='" + nickname + '\'' +
+                ", face='" + face + '\'' +
+                ", activeStatus=" + activeStatus +
+                '}';
     }
 }

@@ -11,6 +11,7 @@ import com.xunmiw.pojo.vo.UserAccountInfoVO;
 import com.xunmiw.user.service.UserService;
 import com.xunmiw.utils.JsonUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.checkerframework.checker.units.qual.A;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -18,6 +19,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -35,14 +38,10 @@ public class UserController extends BaseController implements UserControllerApi 
             return GraceJSONResult.errorCustom(ResponseStatusEnum.UN_LOGIN);
         }
 
-        // 1. 根据userId查询用户信息
-        AppUser appUser = getUser(userId);
+        // 1. 根据userId查询用户信息，并将AppUser包装成展示给用户的基本信息VO对象
+        AppUserVO appUserVO = getBasicUserInfo(userId);
 
-        // 2. 将AppUser包装成展示给用户的基本信息VO对象
-        AppUserVO appUserVO = new AppUserVO();
-        BeanUtils.copyProperties(appUser, appUserVO);
-
-        // 3. 返回用户基本信息
+        // 2. 返回用户基本信息
         return GraceJSONResult.ok(appUserVO);
     }
 
@@ -77,6 +76,20 @@ public class UserController extends BaseController implements UserControllerApi 
         return GraceJSONResult.ok();
     }
 
+    @Override
+    public GraceJSONResult queryUserByIds(String userIds) {
+        if (StringUtils.isBlank(userIds)) {
+            return GraceJSONResult.errorCustom(ResponseStatusEnum.USER_NOT_EXIST_ERROR);
+        }
+        List<AppUserVO> publishers = new ArrayList<>();
+        List<String> userIdList = JsonUtils.jsonToList(userIds, String.class);
+        for (String userId : userIdList) {
+            AppUserVO appUserVO = getBasicUserInfo(userId);
+            publishers.add(appUserVO);
+        }
+        return GraceJSONResult.ok(publishers);
+    }
+
     /**
      * 由于用户信息不怎么变动，对于千万级别并发量的网站来说，可以缓存用户信息到Redis，减少数据库压力
      * @param userId
@@ -96,5 +109,15 @@ public class UserController extends BaseController implements UserControllerApi 
         }
 
         return appUser;
+    }
+
+    private AppUserVO getBasicUserInfo(String userId) {
+        // 1. 根据userId查询用户信息
+        AppUser appUser = getUser(userId);
+
+        // 2. 将AppUser包装成展示给用户的基本信息VO对象
+        AppUserVO appUserVO = new AppUserVO();
+        BeanUtils.copyProperties(appUser, appUserVO);
+        return appUserVO;
     }
 }
