@@ -40,4 +40,20 @@ public class ArticlePortalServiceImpl extends BaseService implements ArticlePort
         List<Article> articles = articleMapper.selectByExample(example);
         return setPagedGrid(articles, page);
     }
+
+    @Override
+    public List<Article> queryHotArticleList() {
+        Example example = new Example(Article.class);
+        example.orderBy("publishTime").desc();
+        Example.Criteria criteria = example.createCriteria();
+
+        criteria.andEqualTo("isAppoint", YesOrNo.NO.type);
+        criteria.andEqualTo("isDelete", YesOrNo.NO.type);
+        criteria.andEqualTo("articleStatus", ArticleReviewStatus.SUCCESS.type);
+
+        PageHelper.startPage(1, 5);
+        List<Article> articles = articleMapper.selectByExample(example);
+
+        return articles;
+    }
 }

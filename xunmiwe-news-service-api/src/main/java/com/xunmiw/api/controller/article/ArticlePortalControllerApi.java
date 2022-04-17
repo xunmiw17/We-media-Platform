@@ -8,13 +8,17 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 @Api(value = "用户portal查询文章的Controller", tags = {"用户portal查询文章的Controller"})
-@RequestMapping("portal")
+@RequestMapping("portal/article")
 public interface ArticlePortalControllerApi {
 
     @ApiOperation(value = "用户portal根据类别分页查询文章列表", notes = "用户portal根据类别分页查询文章列表", httpMethod = "GET")
-    @GetMapping("article/list")
+    @GetMapping("list")
     public GraceJSONResult queryUserPortalArticles(@RequestParam String keyword,
                                                    @RequestParam Integer category,
                                                    @RequestParam Integer page,
                                                    @RequestParam Integer pageSize);
+
+    @ApiOperation(value = "用户portal查询热闻", notes = "用户portal查询热闻", httpMethod = "GET")
+    @GetMapping("hotList")
+    public GraceJSONResult queryHotArticleList();
 }

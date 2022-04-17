@@ -1,6 +1,9 @@
 package com.xunmiw.article.service;
 
+import com.xunmiw.pojo.Article;
 import com.xunmiw.utils.PagedGridResult;
+
+import java.util.List;
 
 public interface ArticlePortalService {
 
@@ -13,4 +16,10 @@ public interface ArticlePortalService {
      * @return
      */
     PagedGridResult queryUserPortalArticles(String keyword, Integer category, Integer page, Integer pageSize);
+
+    /**
+     * 查询热闻
+     * @return
+     */
+    List<Article> queryHotArticleList();
 }
