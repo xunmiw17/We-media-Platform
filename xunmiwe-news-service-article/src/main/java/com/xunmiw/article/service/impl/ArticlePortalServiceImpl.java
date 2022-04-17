@@ -56,4 +56,40 @@ public class ArticlePortalServiceImpl extends BaseService implements ArticlePort
 
         return articles;
     }
+
+    @Override
+    public PagedGridResult queryArticleListOfWriter(String writerId, Integer page, Integer pageSize) {
+        Example example = new Example(Article.class);
+        example.orderBy("publishTime").desc();
+        Example.Criteria criteria = example.createCriteria();
+
+        criteria.andEqualTo("publishUserId", writerId);
+        criteria.andEqualTo("isAppoint", YesOrNo.NO.type);
+        criteria.andEqualTo("isDelete", YesOrNo.NO.type);
+        criteria.andEqualTo("articleStatus", ArticleReviewStatus.SUCCESS.type);
+
+        PageHelper.startPage(page, pageSize);
+        List<Article> articles = articleMapper.selectByExample(example);
+
+        PagedGridResult result = setPagedGrid(articles, page);
+        return result;
+    }
+
+    @Override
+    public PagedGridResult queryGoodArticleListOfWriter(String writerId) {
+        Example example = new Example(Article.class);
+        example.orderBy("publishTime").desc();
+        Example.Criteria criteria = example.createCriteria();
+
+        criteria.andEqualTo("publishUserId", writerId);
+        criteria.andEqualTo("isAppoint", YesOrNo.NO.type);
+        criteria.andEqualTo("isDelete", YesOrNo.NO.type);
+        criteria.andEqualTo("articleStatus", ArticleReviewStatus.SUCCESS.type);
+
+        PageHelper.startPage(1, 5);
+        List<Article> articles = articleMapper.selectByExample(example);
+        PagedGridResult result = setPagedGrid(articles, 1);
+
+        return result;
+    }
 }

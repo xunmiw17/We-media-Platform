@@ -21,4 +21,14 @@ public interface ArticlePortalControllerApi {
     @ApiOperation(value = "用户portal查询热闻", notes = "用户portal查询热闻", httpMethod = "GET")
     @GetMapping("hotList")
     public GraceJSONResult queryHotArticleList();
+
+    @ApiOperation(value = "用户portal个人主页查询用户文章列表", notes = "用户portal个人主页查询用户文章列表", httpMethod = "GET")
+    @GetMapping("queryArticleListOfWriter")
+    public GraceJSONResult queryArticleListOfWriter(@RequestParam String writerId,
+                                                    @RequestParam Integer page,
+                                                    @RequestParam Integer pageSize);
+
+    @ApiOperation(value = "用户portal个人主页查询用户近期佳文", notes = "用户portal个人主页查询用户近期佳文", httpMethod = "GET")
+    @GetMapping("queryGoodArticleListOfWriter")
+    public GraceJSONResult queryGoodArticleListOfWriter(@RequestParam String writerId);
 }

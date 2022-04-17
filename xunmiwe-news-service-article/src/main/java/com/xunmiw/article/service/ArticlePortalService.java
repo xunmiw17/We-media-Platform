@@ -22,4 +22,17 @@ public interface ArticlePortalService {
      * @return
      */
     List<Article> queryHotArticleList();
+
+    /**
+     * 用户portal个人主页查询用户文章列表
+     * @return
+     */
+    PagedGridResult queryArticleListOfWriter(String writerId, Integer page, Integer pageSize);
+
+    /**
+     * 用户portal个人主页查询用户近期佳文
+     * @param writerId
+     * @return
+     */
+    PagedGridResult queryGoodArticleListOfWriter(String writerId);
 }

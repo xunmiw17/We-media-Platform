@@ -3,6 +3,7 @@ package com.xunmiw.article.controller;
 import com.xunmiw.api.BaseController;
 import com.xunmiw.api.controller.article.ArticlePortalControllerApi;
 import com.xunmiw.article.service.ArticlePortalService;
+import com.xunmiw.exception.GraceException;
 import com.xunmiw.grace.result.GraceJSONResult;
 import com.xunmiw.grace.result.ResponseStatusEnum;
 import com.xunmiw.pojo.Article;
@@ -39,7 +40,38 @@ public class ArticlePortalController extends BaseController implements ArticlePo
             pageSize = DEFAULT_PAGE_SIZE;
 
         PagedGridResult result = articlePortalService.queryUserPortalArticles(keyword, category, page, pageSize);
+        // 将结果的Article List转换为同时带有Article和Publisher信息的VO
+        result = incorporateUserInfoInArticles(result);
 
+        return GraceJSONResult.ok(result);
+    }
+
+    @Override
+    public GraceJSONResult queryHotArticleList() {
+        List<Article> articles = articlePortalService.queryHotArticleList();
+        return GraceJSONResult.ok(articles);
+    }
+
+    @Override
+    public GraceJSONResult queryArticleListOfWriter(String writerId, Integer page, Integer pageSize) {
+        if (page == null)
+            page = DEFAULT_START_PAGE;
+        if (pageSize == null)
+            pageSize = DEFAULT_PAGE_SIZE;
+
+        PagedGridResult result = articlePortalService.queryArticleListOfWriter(writerId, page, pageSize);
+        result = incorporateUserInfoInArticles(result);
+        
+        return GraceJSONResult.ok(result);
+    }
+
+    @Override
+    public GraceJSONResult queryGoodArticleListOfWriter(String writerId) {
+        PagedGridResult result = articlePortalService.queryGoodArticleListOfWriter(writerId);
+        return GraceJSONResult.ok(result);
+    }
+
+    private PagedGridResult incorporateUserInfoInArticles(PagedGridResult result) {
         List<Article> rows = (List<Article>) result.getRows();
         // 1. 构建发布者id列表，用于查询每个文章所对应的user信息（包括nickname，头像）页面显示
         Set<String> ids = new HashSet<>();
@@ -54,7 +86,7 @@ public class ArticlePortalController extends BaseController implements ArticlePo
 
         // 注意这里使用equals方法进行两个Integer的比较，如果使用==，即使Integer的值相同，但Integer的地址不同，比较结果仍然为false
         if (!responseBody.getStatus().equals(ResponseStatusEnum.SUCCESS.status())) {
-            return GraceJSONResult.errorCustom(ResponseStatusEnum.SYSTEM_ERROR);
+            GraceException.display(ResponseStatusEnum.SYSTEM_ERROR);
         }
         String publishersJson = JsonUtils.objectToJson(responseBody.getData());
         List<AppUserVO> publishers = JsonUtils.jsonToList(publishersJson, AppUserVO.class);
@@ -77,13 +109,6 @@ public class ArticlePortalController extends BaseController implements ArticlePo
         }
 
         result.setRows(indexArticleVOs);
-
-        return GraceJSONResult.ok(result);
-    }
-
-    @Override
-    public GraceJSONResult queryHotArticleList() {
-        List<Article> articles = articlePortalService.queryHotArticleList();
-        return GraceJSONResult.ok(articles);
+        return result;
     }
 }
