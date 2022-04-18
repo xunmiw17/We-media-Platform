@@ -17,6 +17,8 @@ public class BaseService {
     public static final String REDIS_USER_INFO = "redis_user_info";
     public static final String REDIS_ADMIN_TOKEN = "redis_admin_token";
     public static final String REDIS_CATEGORY_LIST = "redis_category_list";
+    public static final String REDIS_WRITER_FANS_COUNT = "redis_writer_fans_count";
+    public static final String REDIS_USER_FOLLOW_COUNT = "redis_user_follow_count";
 
     public PagedGridResult setPagedGrid(List<?> list, Integer page) {
         PageInfo<?> pageInfo = new PageInfo<>(list);

@@ -44,9 +44,13 @@ public class InterceptorConfig implements WebMvcConfigurer {
                 .addPathPatterns("/article/createArticle")
                 .addPathPatterns("/article/queryMyList")
                 .addPathPatterns("/article/delete")
-                .addPathPatterns("/article/withdraw");
+                .addPathPatterns("/article/withdraw")
+                .addPathPatterns("/fans/follow")
+                .addPathPatterns("/fans/unfollow");
         registry.addInterceptor(userActiveInterceptor())
-                .addPathPatterns("/user/getAccountInfo");
+                .addPathPatterns("/user/getAccountInfo")
+                .addPathPatterns("/fans/follow")
+                .addPathPatterns("/fans/unfollow");
         registry.addInterceptor(adminTokenInterceptor())
                 .addPathPatterns("/adminMng/adminIsExist")
                 .addPathPatterns("/adminMng/addNewAdmin")
