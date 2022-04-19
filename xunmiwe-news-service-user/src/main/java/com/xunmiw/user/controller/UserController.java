@@ -11,7 +11,6 @@ import com.xunmiw.pojo.vo.UserAccountInfoVO;
 import com.xunmiw.user.service.UserService;
 import com.xunmiw.utils.JsonUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.checkerframework.checker.units.qual.A;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -118,6 +117,10 @@ public class UserController extends BaseController implements UserControllerApi 
         // 2. 将AppUser包装成展示给用户的基本信息VO对象
         AppUserVO appUserVO = new AppUserVO();
         BeanUtils.copyProperties(appUser, appUserVO);
+
+        // 3. 查询Redis中用户关注数与粉丝数，放入AppUserVO中
+        appUserVO.setMyFollowCounts(Integer.valueOf(redisOperator.get(REDIS_USER_FOLLOW_COUNT + ":" + userId)));
+        appUserVO.setMyFansCounts(Integer.valueOf(redisOperator.get(REDIS_WRITER_FANS_COUNT + ":" + userId)));
         return appUserVO;
     }
 }
