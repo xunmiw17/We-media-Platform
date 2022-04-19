@@ -1,5 +1,6 @@
 package com.xunmiw.user.service.impl;
 
+import com.github.pagehelper.PageHelper;
 import com.xunmiw.api.service.BaseService;
 import com.xunmiw.exception.GraceException;
 import com.xunmiw.grace.result.ResponseStatusEnum;
@@ -8,11 +9,15 @@ import com.xunmiw.pojo.Fans;
 import com.xunmiw.user.mapper.FansMapper;
 import com.xunmiw.user.service.FansService;
 import com.xunmiw.user.service.UserService;
+import com.xunmiw.utils.PagedGridResult;
 import com.xunmiw.utils.RedisOperator;
 import org.n3r.idworker.Sid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import tk.mybatis.mapper.entity.Example;
+
+import java.util.List;
 
 @Service
 public class FansServiceImpl extends BaseService implements FansService {
@@ -77,5 +82,16 @@ public class FansServiceImpl extends BaseService implements FansService {
         // Redis作家粉丝数 & 当前用户关注数累减
         redisOperator.decrement(REDIS_WRITER_FANS_COUNT + ":" + writerId, 1);
         redisOperator.decrement(REDIS_USER_FOLLOW_COUNT + ":" + fanId, 1);
+    }
+
+    @Override
+    public PagedGridResult queryAll(String writerId, Integer page, Integer pageSize) {
+        Example example = new Example(Fans.class);
+        Example.Criteria criteria = example.createCriteria();
+        criteria.andEqualTo("writerId", writerId);
+
+        PageHelper.startPage(page, pageSize);
+        List<Fans> fans = fansMapper.selectByExample(example);
+        return setPagedGrid(fans, page);
     }
 }

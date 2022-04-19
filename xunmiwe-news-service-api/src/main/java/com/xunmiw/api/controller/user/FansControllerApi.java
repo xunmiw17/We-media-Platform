@@ -22,4 +22,10 @@ public interface FansControllerApi {
     @ApiOperation(value = "取关作家", notes = "取关作家", httpMethod = "POST")
     @PostMapping("unfollow")
     public GraceJSONResult unfollow(@RequestParam String writerId, @RequestParam String fanId);
+
+    @ApiOperation(value = "查询粉丝列表", notes = "查询粉丝列表", httpMethod = "POST")
+    @PostMapping("queryAll")
+    public GraceJSONResult queryAll(@RequestParam String writerId,
+                                    @RequestParam Integer page,
+                                    @RequestParam Integer pageSize);
 }

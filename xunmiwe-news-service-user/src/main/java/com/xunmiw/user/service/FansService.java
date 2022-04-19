@@ -1,5 +1,10 @@
 package com.xunmiw.user.service;
 
+import com.xunmiw.pojo.Fans;
+import com.xunmiw.utils.PagedGridResult;
+
+import java.util.List;
+
 public interface FansService {
 
     /**
@@ -23,4 +28,13 @@ public interface FansService {
      * @param fanId
      */
     public void unfollow(String writerId, String fanId);
+
+    /**
+     * 查询粉丝列表
+     * @param writerId
+     * @param page
+     * @param pageSize
+     * @return
+     */
+    public PagedGridResult queryAll(String writerId, Integer page, Integer pageSize);
 }
