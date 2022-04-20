@@ -32,6 +32,8 @@ public class BaseController {
     public static final String REDIS_CATEGORY_LIST = "redis_category_list";
     public static final String REDIS_WRITER_FANS_COUNT = "redis_writer_fans_count";
     public static final String REDIS_USER_FOLLOW_COUNT = "redis_user_follow_count";
+    public static final String REDIS_ARTICLE_READ_COUNT = "redis_article_read_count";
+    public static final String REDIS_ARTICLE_ALREADY_READ = "redis_article_already_read";
 
     public static final Integer COOKIE_MONTH = 30 * 24 * 60 * 60;
     public static final Integer COOKIE_DELETE = 0;

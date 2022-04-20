@@ -6,21 +6,25 @@ import com.xunmiw.article.service.ArticlePortalService;
 import com.xunmiw.exception.GraceException;
 import com.xunmiw.grace.result.GraceJSONResult;
 import com.xunmiw.grace.result.ResponseStatusEnum;
-import com.xunmiw.pojo.AppUser;
 import com.xunmiw.pojo.Article;
 import com.xunmiw.pojo.vo.AppUserVO;
 import com.xunmiw.pojo.vo.ArticleDetailVO;
 import com.xunmiw.pojo.vo.IndexArticleVO;
+import com.xunmiw.utils.IPUtil;
 import com.xunmiw.utils.JsonUtils;
 import com.xunmiw.utils.PagedGridResult;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.*;
+import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @RestController
 public class ArticlePortalController extends BaseController implements ArticlePortalControllerApi {
@@ -79,7 +83,22 @@ public class ArticlePortalController extends BaseController implements ArticlePo
         List<AppUserVO> publisherList = getPublisherList(set);
         articleDetailVO.setPublishUserName(publisherList.get(0).getNickname());
 
+        String readCountStr = redisOperator.get(REDIS_ARTICLE_READ_COUNT + ":" + articleId);
+        if (StringUtils.isNotBlank(readCountStr))
+            articleDetailVO.setReadCounts(Integer.valueOf(readCountStr));
+
         return GraceJSONResult.ok(articleDetailVO);
+    }
+
+    @Override
+    public GraceJSONResult readArticle(String articleId, HttpServletRequest request) {
+
+        String userIP = IPUtil.getRequestIp(request);
+        // 将userIP存入Redis，防止用户刷阅读量
+        redisOperator.setnx(REDIS_ARTICLE_ALREADY_READ + ":" + articleId + ":" + userIP, userIP);
+
+        redisOperator.increment(REDIS_ARTICLE_READ_COUNT + ":" + articleId, 1);
+        return GraceJSONResult.ok();
     }
 
     private PagedGridResult incorporateUserInfoInArticles(PagedGridResult result) {

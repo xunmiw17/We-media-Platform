@@ -1,9 +1,6 @@
 package com.xunmiw.api.config;
 
-import com.xunmiw.api.interceptors.AdminTokenInterceptor;
-import com.xunmiw.api.interceptors.PassportInterceptor;
-import com.xunmiw.api.interceptors.UserActiveInterceptor;
-import com.xunmiw.api.interceptors.UserTokenInterceptor;
+import com.xunmiw.api.interceptors.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -30,6 +27,11 @@ public class InterceptorConfig implements WebMvcConfigurer {
     @Bean
     public AdminTokenInterceptor adminTokenInterceptor() {
         return new AdminTokenInterceptor();
+    }
+
+    @Bean
+    public ArticleReadInterceptor articleReadInterceptor() {
+        return new ArticleReadInterceptor();
     }
 
     @Override
@@ -62,5 +64,7 @@ public class InterceptorConfig implements WebMvcConfigurer {
                 .addPathPatterns("/friendLinkMng/delete")
                 .addPathPatterns("/article/queryAllList")
                 .addPathPatterns("/article/doReview");
+        registry.addInterceptor(articleReadInterceptor())
+                .addPathPatterns("/portal/article/readArticle");
     }
 }

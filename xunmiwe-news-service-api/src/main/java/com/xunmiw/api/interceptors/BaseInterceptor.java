@@ -14,6 +14,7 @@ public class BaseInterceptor {
     public static final String REDIS_USER_TOKEN = "redis_user_token";
     public static final String REDIS_USER_INFO = "redis_user_info";
     public static final String REDIS_ADMIN_TOKEN = "redis_admin_token";
+    public static final String REDIS_ARTICLE_ALREADY_READ = "redis_article_already_read";
 
     @Autowired
     protected RedisOperator redisOperator;

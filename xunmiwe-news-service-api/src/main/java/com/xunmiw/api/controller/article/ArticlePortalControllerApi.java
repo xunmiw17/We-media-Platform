@@ -4,8 +4,11 @@ import com.xunmiw.grace.result.GraceJSONResult;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import javax.servlet.http.HttpServletRequest;
 
 @Api(value = "用户portal查询文章的Controller", tags = {"用户portal查询文章的Controller"})
 @RequestMapping("portal/article")
@@ -35,4 +38,8 @@ public interface ArticlePortalControllerApi {
     @ApiOperation(value = "查询文章详情", notes = "查询文章详情", httpMethod = "GET")
     @GetMapping("detail")
     public GraceJSONResult detail(@RequestParam String articleId);
+
+    @ApiOperation(value = "用户阅读文章", notes = "用户阅读文章", httpMethod = "POST")
+    @PostMapping("readArticle")
+    public GraceJSONResult readArticle(@RequestParam String articleId, HttpServletRequest request);
 }
