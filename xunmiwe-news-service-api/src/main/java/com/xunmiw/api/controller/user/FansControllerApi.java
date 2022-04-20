@@ -28,4 +28,12 @@ public interface FansControllerApi {
     public GraceJSONResult queryAll(@RequestParam String writerId,
                                     @RequestParam Integer page,
                                     @RequestParam Integer pageSize);
+
+    @ApiOperation(value = "查询男女粉丝数量/比例", notes = "查询男女粉丝数量/比例", httpMethod = "POST")
+    @PostMapping("queryRatio")
+    public GraceJSONResult queryRatio(@RequestParam String writerId);
+
+    @ApiOperation(value = "根据地域查询粉丝数量/比例", notes = "根据地域查询粉丝数量/比例", httpMethod = "POST")
+    @PostMapping("queryRatioByRegion")
+    public GraceJSONResult queryRatioByRegion(@RequestParam String writerId);
 }

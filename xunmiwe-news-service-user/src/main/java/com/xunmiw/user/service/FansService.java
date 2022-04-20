@@ -1,6 +1,8 @@
 package com.xunmiw.user.service;
 
+import com.xunmiw.enums.Sex;
 import com.xunmiw.pojo.Fans;
+import com.xunmiw.pojo.vo.RegionRatioVO;
 import com.xunmiw.utils.PagedGridResult;
 
 import java.util.List;
@@ -37,4 +39,18 @@ public interface FansService {
      * @return
      */
     public PagedGridResult queryAll(String writerId, Integer page, Integer pageSize);
+
+    /**
+     * 查询男女粉丝数量/比例
+     * @param writerId
+     * @param sex
+     */
+    public Integer queryFansRatioAndCounts(String writerId, Sex sex);
+
+    /**
+     * 根据地域查询粉丝数量/比例
+     * @param writerId
+     * @return
+     */
+    public List<RegionRatioVO> queryFansRatioAndCountsByRegion(String writerId);
 }

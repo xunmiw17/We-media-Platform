@@ -2,11 +2,16 @@ package com.xunmiw.user.controller;
 
 import com.xunmiw.api.BaseController;
 import com.xunmiw.api.controller.user.FansControllerApi;
+import com.xunmiw.enums.Sex;
 import com.xunmiw.grace.result.GraceJSONResult;
+import com.xunmiw.pojo.vo.FansCountVO;
+import com.xunmiw.pojo.vo.RegionRatioVO;
 import com.xunmiw.user.service.FansService;
 import com.xunmiw.utils.PagedGridResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @RestController
 public class FansController extends BaseController implements FansControllerApi {
@@ -40,6 +45,22 @@ public class FansController extends BaseController implements FansControllerApi 
             pageSize = DEFAULT_PAGE_SIZE;
 
         PagedGridResult result = fansService.queryAll(writerId, page, pageSize);
+        return GraceJSONResult.ok(result);
+    }
+
+    @Override
+    public GraceJSONResult queryRatio(String writerId) {
+        Integer manCount = fansService.queryFansRatioAndCounts(writerId, Sex.man);
+        Integer womanCount = fansService.queryFansRatioAndCounts(writerId, Sex.woman);
+        FansCountVO fansCountVO = new FansCountVO();
+        fansCountVO.setManCounts(manCount);
+        fansCountVO.setWomanCounts(womanCount);
+        return GraceJSONResult.ok(fansCountVO);
+    }
+
+    @Override
+    public GraceJSONResult queryRatioByRegion(String writerId) {
+        List<RegionRatioVO> result = fansService.queryFansRatioAndCountsByRegion(writerId);
         return GraceJSONResult.ok(result);
     }
 }
