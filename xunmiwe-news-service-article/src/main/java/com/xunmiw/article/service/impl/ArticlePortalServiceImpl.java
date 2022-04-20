@@ -7,8 +7,10 @@ import com.xunmiw.article.service.ArticlePortalService;
 import com.xunmiw.enums.ArticleReviewStatus;
 import com.xunmiw.enums.YesOrNo;
 import com.xunmiw.pojo.Article;
+import com.xunmiw.pojo.vo.ArticleDetailVO;
 import com.xunmiw.utils.PagedGridResult;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import tk.mybatis.mapper.entity.Example;
@@ -91,5 +93,22 @@ public class ArticlePortalServiceImpl extends BaseService implements ArticlePort
         PagedGridResult result = setPagedGrid(articles, 1);
 
         return result;
+    }
+
+    @Override
+    public ArticleDetailVO detail(String articleId) {
+        Example example = new Example(Article.class);
+        Example.Criteria criteria = example.createCriteria();
+        criteria.andEqualTo("id", articleId);
+        criteria.andEqualTo("isAppoint", YesOrNo.NO.type);
+        criteria.andEqualTo("isDelete", YesOrNo.NO.type);
+        criteria.andEqualTo("articleStatus", ArticleReviewStatus.SUCCESS.type);
+
+        Article article = articleMapper.selectOneByExample(example);
+
+        ArticleDetailVO articleDetailVO = new ArticleDetailVO();
+        BeanUtils.copyProperties(article, articleDetailVO);
+
+        return articleDetailVO;
     }
 }

@@ -6,21 +6,21 @@ import com.xunmiw.article.service.ArticlePortalService;
 import com.xunmiw.exception.GraceException;
 import com.xunmiw.grace.result.GraceJSONResult;
 import com.xunmiw.grace.result.ResponseStatusEnum;
+import com.xunmiw.pojo.AppUser;
 import com.xunmiw.pojo.Article;
 import com.xunmiw.pojo.vo.AppUserVO;
+import com.xunmiw.pojo.vo.ArticleDetailVO;
 import com.xunmiw.pojo.vo.IndexArticleVO;
 import com.xunmiw.utils.JsonUtils;
 import com.xunmiw.utils.PagedGridResult;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @RestController
 public class ArticlePortalController extends BaseController implements ArticlePortalControllerApi {
@@ -70,6 +70,18 @@ public class ArticlePortalController extends BaseController implements ArticlePo
         return GraceJSONResult.ok(result);
     }
 
+    @Override
+    public GraceJSONResult detail(String articleId) {
+        ArticleDetailVO articleDetailVO = articlePortalService.detail(articleId);
+
+        Set<String> set = new HashSet<>();
+        set.add(articleDetailVO.getPublishUserId());
+        List<AppUserVO> publisherList = getPublisherList(set);
+        articleDetailVO.setPublishUserName(publisherList.get(0).getNickname());
+
+        return GraceJSONResult.ok(articleDetailVO);
+    }
+
     private PagedGridResult incorporateUserInfoInArticles(PagedGridResult result) {
         List<Article> rows = (List<Article>) result.getRows();
         // 1. 构建发布者id列表，用于查询每个文章所对应的user信息（包括nickname，头像）页面显示
@@ -79,16 +91,7 @@ public class ArticlePortalController extends BaseController implements ArticlePo
         }
 
         // 2. 发起远程调用，请求user服务获得对应user（发布者）列表
-        String getUserInfoUrl = "http://user.imoocnews.com:8003/user/queryUserByIds?userIds=" + JsonUtils.objectToJson(ids);
-        ResponseEntity<GraceJSONResult> responseEntity = restTemplate.getForEntity(getUserInfoUrl, GraceJSONResult.class);
-        GraceJSONResult responseBody = responseEntity.getBody();
-
-        // 注意这里使用equals方法进行两个Integer的比较，如果使用==，即使Integer的值相同，但Integer的地址不同，比较结果仍然为false
-        if (!responseBody.getStatus().equals(ResponseStatusEnum.SUCCESS.status())) {
-            GraceException.display(ResponseStatusEnum.SYSTEM_ERROR);
-        }
-        String publishersJson = JsonUtils.objectToJson(responseBody.getData());
-        List<AppUserVO> publishers = JsonUtils.jsonToList(publishersJson, AppUserVO.class);
+        List<AppUserVO> publishers = getPublisherList(ids);
 
         // 3. 拼接两个List，重组文章列表
         List<IndexArticleVO> indexArticleVOs = new ArrayList<>();
@@ -109,5 +112,24 @@ public class ArticlePortalController extends BaseController implements ArticlePo
 
         result.setRows(indexArticleVOs);
         return result;
+    }
+
+    /**
+     * 发起远程调用，获得指定用户(们)的基本信息
+     * @param userIds
+     * @return
+     */
+    private List<AppUserVO> getPublisherList(Set<String> userIds) {
+        String getUserInfoUrl = "http://user.imoocnews.com:8003/user/queryUserByIds?userIds=" + JsonUtils.objectToJson(userIds);
+        ResponseEntity<GraceJSONResult> responseEntity = restTemplate.getForEntity(getUserInfoUrl, GraceJSONResult.class);
+        GraceJSONResult responseBody = responseEntity.getBody();
+
+        // 注意这里使用equals方法进行两个Integer的比较，如果使用==，即使Integer的值相同，但Integer的地址不同，比较结果仍然为false
+        if (!responseBody.getStatus().equals(ResponseStatusEnum.SUCCESS.status())) {
+            GraceException.display(ResponseStatusEnum.SYSTEM_ERROR);
+        }
+        String publishersJson = JsonUtils.objectToJson(responseBody.getData());
+        List<AppUserVO> publishers = JsonUtils.jsonToList(publishersJson, AppUserVO.class);
+        return publishers;
     }
 }

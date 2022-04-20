@@ -1,6 +1,7 @@
 package com.xunmiw.article.service;
 
 import com.xunmiw.pojo.Article;
+import com.xunmiw.pojo.vo.ArticleDetailVO;
 import com.xunmiw.utils.PagedGridResult;
 
 import java.util.List;
@@ -35,4 +36,11 @@ public interface ArticlePortalService {
      * @return
      */
     PagedGridResult queryGoodArticleListOfWriter(String writerId);
+
+    /**
+     * 查询文章详情
+     * @param articleId
+     * @return
+     */
+    ArticleDetailVO detail(String articleId);
 }

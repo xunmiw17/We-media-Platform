@@ -119,8 +119,12 @@ public class UserController extends BaseController implements UserControllerApi 
         BeanUtils.copyProperties(appUser, appUserVO);
 
         // 3. 查询Redis中用户关注数与粉丝数，放入AppUserVO中
-        appUserVO.setMyFollowCounts(Integer.valueOf(redisOperator.get(REDIS_USER_FOLLOW_COUNT + ":" + userId)));
-        appUserVO.setMyFansCounts(Integer.valueOf(redisOperator.get(REDIS_WRITER_FANS_COUNT + ":" + userId)));
+        String followCountStr = redisOperator.get(REDIS_USER_FOLLOW_COUNT + ":" + userId);
+        String fansCountStr = redisOperator.get(REDIS_WRITER_FANS_COUNT + ":" + userId);
+        if (StringUtils.isNotBlank(followCountStr))
+            appUserVO.setMyFollowCounts(Integer.valueOf(followCountStr));
+        if (StringUtils.isNotBlank(fansCountStr))
+            appUserVO.setMyFansCounts(Integer.valueOf(fansCountStr));
         return appUserVO;
     }
 }
