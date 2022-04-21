@@ -51,6 +51,12 @@ public class Comments {
     private String commentUserNickname;
 
     /**
+     * 冗余的用户头像
+     */
+    @Column(name = "comment_user_face")
+    private String commentUserFace;
+
+    /**
      * 留言内容
      */
     private String content;
@@ -199,6 +205,24 @@ public class Comments {
      */
     public void setCommentUserNickname(String commentUserNickname) {
         this.commentUserNickname = commentUserNickname;
+    }
+
+    /**
+     * 获取冗余的用户头像
+     *
+     * @return comment_user_face - 冗余的用户头像
+     */
+    public String getCommentUserFace() {
+        return commentUserFace;
+    }
+
+    /**
+     * 设置冗余的用户头像
+     *
+     * @param commentUserFace 冗余的用户头像
+     */
+    public void setCommentUserFace(String commentUserFace) {
+        this.commentUserFace = commentUserFace;
     }
 
     /**

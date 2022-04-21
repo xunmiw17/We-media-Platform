@@ -80,7 +80,7 @@ public class ArticlePortalController extends BaseController implements ArticlePo
 
         Set<String> set = new HashSet<>();
         set.add(articleDetailVO.getPublishUserId());
-        List<AppUserVO> publisherList = getPublisherList(set);
+        List<AppUserVO> publisherList = getUserList(set);
         articleDetailVO.setPublishUserName(publisherList.get(0).getNickname());
 
         String readCountStr = redisOperator.get(REDIS_ARTICLE_READ_COUNT + ":" + articleId);
@@ -117,32 +117,10 @@ public class ArticlePortalController extends BaseController implements ArticlePo
         List<String> readCounts = redisOperator.mget(articleIds);
 
         // 2. 发起远程调用，请求user服务获得对应user（发布者）列表
-        List<AppUserVO> publishers = getPublisherList(ids);
+        List<AppUserVO> publishers = getUserList(ids);
 
         // 3. 拼接两个List，重组文章列表
         List<IndexArticleVO> indexArticleVOs = new ArrayList<>();
-        // for (Article article : rows) {
-        //     IndexArticleVO indexArticleVO = new IndexArticleVO();
-        //     BeanUtils.copyProperties(article, indexArticleVO);
-        //     String userId = article.getPublishUserId();
-        //
-        //     // 3.1 获得文章发布者信息
-        //     AppUserVO publisherVO = null;
-        //     for (AppUserVO appUserVO : publishers) {
-        //         if (appUserVO.getId().equals(userId)) {
-        //             publisherVO = appUserVO;
-        //             break;
-        //         }
-        //     }
-        //     indexArticleVO.setPublisherVO(publisherVO);
-        //
-        //     // 3.2 设置文章阅读量
-        //     String readCountStr = redisOperator.get(REDIS_ARTICLE_READ_COUNT + ":" + article.getId());
-        //     if (StringUtils.isNotBlank(readCountStr))
-        //         indexArticleVO.setReadCounts(Integer.valueOf(readCountStr));
-        //
-        //     indexArticleVOs.add(indexArticleVO);
-        // }
 
         for (int i = 0; i < rows.size(); i++) {
             Article article = rows.get(i);
@@ -170,24 +148,5 @@ public class ArticlePortalController extends BaseController implements ArticlePo
 
         result.setRows(indexArticleVOs);
         return result;
-    }
-
-    /**
-     * 发起远程调用，获得指定用户(们)的基本信息
-     * @param userIds
-     * @return
-     */
-    private List<AppUserVO> getPublisherList(Set<String> userIds) {
-        String getUserInfoUrl = "http://user.imoocnews.com:8003/user/queryUserByIds?userIds=" + JsonUtils.objectToJson(userIds);
-        ResponseEntity<GraceJSONResult> responseEntity = restTemplate.getForEntity(getUserInfoUrl, GraceJSONResult.class);
-        GraceJSONResult responseBody = responseEntity.getBody();
-
-        // 注意这里使用equals方法进行两个Integer的比较，如果使用==，即使Integer的值相同，但Integer的地址不同，比较结果仍然为false
-        if (!responseBody.getStatus().equals(ResponseStatusEnum.SUCCESS.status())) {
-            GraceException.display(ResponseStatusEnum.SYSTEM_ERROR);
-        }
-        String publishersJson = JsonUtils.objectToJson(responseBody.getData());
-        List<AppUserVO> publishers = JsonUtils.jsonToList(publishersJson, AppUserVO.class);
-        return publishers;
     }
 }

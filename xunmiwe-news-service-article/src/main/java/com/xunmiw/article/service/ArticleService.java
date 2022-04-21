@@ -1,11 +1,9 @@
 package com.xunmiw.article.service;
 
-import com.xunmiw.pojo.Article;
 import com.xunmiw.pojo.bo.ArticleBO;
 import com.xunmiw.utils.PagedGridResult;
 
 import java.util.Date;
-import java.util.List;
 
 public interface ArticleService {
 

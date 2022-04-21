@@ -108,6 +108,7 @@ public class ArticlePortalServiceImpl extends BaseService implements ArticlePort
 
         ArticleDetailVO articleDetailVO = new ArticleDetailVO();
         BeanUtils.copyProperties(article, articleDetailVO);
+        articleDetailVO.setCover(article.getArticleCover());
 
         return articleDetailVO;
     }

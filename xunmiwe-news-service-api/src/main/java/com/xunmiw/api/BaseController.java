@@ -1,15 +1,18 @@
 package com.xunmiw.api;
 
+import com.xunmiw.exception.GraceException;
 import com.xunmiw.grace.result.GraceJSONResult;
 import com.xunmiw.grace.result.ResponseStatusEnum;
 import com.xunmiw.pojo.Category;
+import com.xunmiw.pojo.vo.AppUserVO;
 import com.xunmiw.utils.JsonUtils;
 import com.xunmiw.utils.RedisOperator;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
+import org.springframework.web.client.RestTemplate;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -19,11 +22,15 @@ import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class BaseController {
 
     @Autowired
     public RedisOperator redisOperator;
+
+    @Autowired
+    public RestTemplate restTemplate;
 
     public static final String MOBILE_SMSCODE = "mobile:smscode";
     public static final String REDIS_USER_TOKEN = "redis_user_token";
@@ -101,5 +108,24 @@ public class BaseController {
             }
         }
         return null;
+    }
+
+    /**
+     * 发起远程调用，获得指定用户(们)的基本信息
+     * @param userIds
+     * @return
+     */
+    public List<AppUserVO> getUserList(Set<String> userIds) {
+        String getUserInfoUrl = "http://user.imoocnews.com:8003/user/queryUserByIds?userIds=" + JsonUtils.objectToJson(userIds);
+        ResponseEntity<GraceJSONResult> responseEntity = restTemplate.getForEntity(getUserInfoUrl, GraceJSONResult.class);
+        GraceJSONResult responseBody = responseEntity.getBody();
+
+        // 注意这里使用equals方法进行两个Integer的比较，如果使用==，即使Integer的值相同，但Integer的地址不同，比较结果仍然为false
+        if (!responseBody.getStatus().equals(ResponseStatusEnum.SUCCESS.status())) {
+            GraceException.display(ResponseStatusEnum.SYSTEM_ERROR);
+        }
+        String usersJson = JsonUtils.objectToJson(responseBody.getData());
+        List<AppUserVO> users = JsonUtils.jsonToList(usersJson, AppUserVO.class);
+        return users;
     }
 }
