@@ -105,19 +105,52 @@ public class ArticlePortalController extends BaseController implements ArticlePo
         List<Article> rows = (List<Article>) result.getRows();
         // 1. 构建发布者id列表，用于查询每个文章所对应的user信息（包括nickname，头像）页面显示
         Set<String> ids = new HashSet<>();
+        List<String> articleIds = new ArrayList<>();
         for (Article article : rows) {
+            // 1.1 构建发布者的set
             ids.add(article.getPublishUserId());
+            // 1.2 构建文章id的list
+            articleIds.add(REDIS_ARTICLE_READ_COUNT + ":" + article.getId());
         }
+
+        // 发起Redis批量查询mget，获取文章阅读量的List
+        List<String> readCounts = redisOperator.mget(articleIds);
 
         // 2. 发起远程调用，请求user服务获得对应user（发布者）列表
         List<AppUserVO> publishers = getPublisherList(ids);
 
         // 3. 拼接两个List，重组文章列表
         List<IndexArticleVO> indexArticleVOs = new ArrayList<>();
-        for (Article article : rows) {
+        // for (Article article : rows) {
+        //     IndexArticleVO indexArticleVO = new IndexArticleVO();
+        //     BeanUtils.copyProperties(article, indexArticleVO);
+        //     String userId = article.getPublishUserId();
+        //
+        //     // 3.1 获得文章发布者信息
+        //     AppUserVO publisherVO = null;
+        //     for (AppUserVO appUserVO : publishers) {
+        //         if (appUserVO.getId().equals(userId)) {
+        //             publisherVO = appUserVO;
+        //             break;
+        //         }
+        //     }
+        //     indexArticleVO.setPublisherVO(publisherVO);
+        //
+        //     // 3.2 设置文章阅读量
+        //     String readCountStr = redisOperator.get(REDIS_ARTICLE_READ_COUNT + ":" + article.getId());
+        //     if (StringUtils.isNotBlank(readCountStr))
+        //         indexArticleVO.setReadCounts(Integer.valueOf(readCountStr));
+        //
+        //     indexArticleVOs.add(indexArticleVO);
+        // }
+
+        for (int i = 0; i < rows.size(); i++) {
+            Article article = rows.get(i);
             IndexArticleVO indexArticleVO = new IndexArticleVO();
             BeanUtils.copyProperties(article, indexArticleVO);
             String userId = article.getPublishUserId();
+
+            // 3.1 获得文章发布者信息
             AppUserVO publisherVO = null;
             for (AppUserVO appUserVO : publishers) {
                 if (appUserVO.getId().equals(userId)) {
@@ -126,6 +159,12 @@ public class ArticlePortalController extends BaseController implements ArticlePo
                 }
             }
             indexArticleVO.setPublisherVO(publisherVO);
+
+            // 3.2 设置文章阅读量
+            String readCountStr = readCounts.get(i);
+            if (StringUtils.isNotBlank(readCountStr))
+                indexArticleVO.setReadCounts(Integer.valueOf(readCountStr));
+
             indexArticleVOs.add(indexArticleVO);
         }
 
