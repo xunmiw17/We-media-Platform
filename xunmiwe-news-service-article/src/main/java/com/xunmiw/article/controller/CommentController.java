@@ -6,6 +6,8 @@ import com.xunmiw.article.service.CommentService;
 import com.xunmiw.grace.result.GraceJSONResult;
 import com.xunmiw.pojo.bo.CommentReplyBO;
 import com.xunmiw.pojo.vo.AppUserVO;
+import com.xunmiw.utils.PagedGridResult;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RestController;
@@ -45,5 +47,25 @@ public class CommentController extends BaseController implements CommentControll
         commentService.createComment(commentReplyBO.getArticleId(), commentReplyBO.getFatherId(),
                                             commentReplyBO.getContent(), userId, nickname, commentUserFace);
         return GraceJSONResult.ok();
+    }
+
+    @Override
+    public GraceJSONResult counts(String articleId) {
+        String commentCountStr = redisOperator.get(REDIS_ARTICLE_COMMENT_COUNT + ":" + articleId);
+        Integer count = 0;
+        if (StringUtils.isNotBlank(commentCountStr))
+            count = Integer.valueOf(commentCountStr);
+        return GraceJSONResult.ok(count);
+    }
+
+    @Override
+    public GraceJSONResult list(String articleId, Integer page, Integer pageSize) {
+        if (page == null)
+            page = DEFAULT_START_PAGE;
+        if (pageSize == null)
+            pageSize = DEFAULT_PAGE_SIZE;
+
+        PagedGridResult result = commentService.listComments(articleId, page, pageSize);
+        return GraceJSONResult.ok(result);
     }
 }

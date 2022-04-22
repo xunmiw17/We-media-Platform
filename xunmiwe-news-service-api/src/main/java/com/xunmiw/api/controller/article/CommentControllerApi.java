@@ -4,10 +4,9 @@ import com.xunmiw.grace.result.GraceJSONResult;
 import com.xunmiw.pojo.bo.CommentReplyBO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.models.auth.In;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
@@ -19,4 +18,14 @@ public interface CommentControllerApi {
     @PostMapping("createComment")
     public GraceJSONResult createComment(@RequestBody @Valid CommentReplyBO commentReplyBO,
                                          BindingResult bindingResult);
+
+    @ApiOperation(value = "查询评论数", notes = "查询评论数", httpMethod = "GET")
+    @GetMapping("counts")
+    public GraceJSONResult counts(@RequestParam String articleId);
+
+    @ApiOperation(value = "分页查询文章所有评论", notes = "分页查询文章所有评论", httpMethod = "GET")
+    @GetMapping("list")
+    public GraceJSONResult list(@RequestParam String articleId,
+                                @RequestParam Integer page,
+                                @RequestParam Integer pageSize);
 }

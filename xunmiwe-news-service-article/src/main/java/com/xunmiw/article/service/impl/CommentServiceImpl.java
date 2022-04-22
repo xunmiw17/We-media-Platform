@@ -1,19 +1,26 @@
 package com.xunmiw.article.service.impl;
 
+import com.github.pagehelper.PageHelper;
 import com.xunmiw.api.service.BaseService;
 import com.xunmiw.article.mapper.CommentsMapper;
+import com.xunmiw.article.mapper.CommentsMapperCustom;
 import com.xunmiw.article.service.ArticlePortalService;
 import com.xunmiw.article.service.CommentService;
 import com.xunmiw.exception.GraceException;
 import com.xunmiw.grace.result.ResponseStatusEnum;
 import com.xunmiw.pojo.Comments;
 import com.xunmiw.pojo.vo.ArticleDetailVO;
+import com.xunmiw.pojo.vo.CommentsVO;
+import com.xunmiw.utils.PagedGridResult;
 import org.n3r.idworker.Sid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class CommentServiceImpl extends BaseService implements CommentService {
@@ -23,6 +30,9 @@ public class CommentServiceImpl extends BaseService implements CommentService {
 
     @Autowired
     private CommentsMapper commentsMapper;
+
+    @Autowired
+    private CommentsMapperCustom commentsMapperCustom;
 
     @Autowired
     private Sid sid;
@@ -54,5 +64,19 @@ public class CommentServiceImpl extends BaseService implements CommentService {
         if (result != 1) {
             GraceException.display(ResponseStatusEnum.SYSTEM_ERROR);
         }
+
+        // 评论数累加
+        redisOperator.increment(REDIS_ARTICLE_COMMENT_COUNT + ":" + articleId, 1);
+    }
+
+    @Override
+    public PagedGridResult listComments(String articleId, Integer page, Integer pageSize) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("articleId", articleId);
+
+        PageHelper.startPage(page, pageSize);
+        List<CommentsVO> commentsVOS = commentsMapperCustom.queryComments(map);
+        PagedGridResult result = setPagedGrid(commentsVOS, page);
+        return result;
     }
 }
