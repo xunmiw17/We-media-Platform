@@ -22,4 +22,19 @@ public interface CommentService {
      * @return
      */
     PagedGridResult listComments(String articleId, Integer page, Integer pageSize);
+
+    /**
+     * 分页查询用户历史评论
+     * @param writerId
+     * @param page
+     * @param pageSize
+     * @return
+     */
+    PagedGridResult mng(String writerId, Integer page, Integer pageSize);
+
+    /**
+     * 删除某条评论
+     * @param commentId
+     */
+    void delete(String commentId, String writerId);
 }

@@ -9,6 +9,7 @@ public class CommentsVO {
     private String articleId;
     private String commentUserId;
     private String commentUserNickname;
+    private String commentUserFace;
     private String content;
     private Date createTime;
     private String quoteUserNickname;
@@ -54,6 +55,14 @@ public class CommentsVO {
         this.commentUserNickname = commentUserNickname;
     }
 
+    public String getCommentUserFace() {
+        return commentUserFace;
+    }
+
+    public void setCommentUserFace(String commentUserFace) {
+        this.commentUserFace = commentUserFace;
+    }
+
     public String getContent() {
         return content;
     }
@@ -85,4 +94,5 @@ public class CommentsVO {
     public void setQuoteContent(String quoteContent) {
         this.quoteContent = quoteContent;
     }
+
 }

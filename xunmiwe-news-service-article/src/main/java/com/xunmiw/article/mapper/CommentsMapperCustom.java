@@ -13,5 +13,5 @@ public interface CommentsMapperCustom {
     /**
      * 查询文章评论
      */
-    List<CommentsVO> queryComments(@Param("paramMap")Map<String, Object> map);
+    List<CommentsVO> queryComments(@Param("paramMap") Map<String, Object> map);
 }

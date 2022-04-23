@@ -16,6 +16,7 @@ import org.n3r.idworker.Sid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import tk.mybatis.mapper.entity.Example;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -78,5 +79,29 @@ public class CommentServiceImpl extends BaseService implements CommentService {
         List<CommentsVO> commentsVOS = commentsMapperCustom.queryComments(map);
         PagedGridResult result = setPagedGrid(commentsVOS, page);
         return result;
+    }
+
+    @Override
+    public PagedGridResult mng(String writerId, Integer page, Integer pageSize) {
+        Example example = new Example(Comments.class);
+        example.orderBy("createTime").desc();
+        Example.Criteria criteria = example.createCriteria();
+        criteria.andEqualTo("commentUserId", writerId);
+
+        PageHelper.startPage(page, pageSize);
+        List<Comments> comments = commentsMapper.selectByExample(example);
+        return setPagedGrid(comments, page);
+    }
+
+    @Override
+    public void delete(String commentId, String writerId) {
+        Comments comments = new Comments();
+        comments.setId(commentId);
+        comments.setWriterId(writerId);
+
+        int result = commentsMapper.delete(comments);
+        if (result != 1) {
+            GraceException.display(ResponseStatusEnum.SYSTEM_ERROR);
+        }
     }
 }

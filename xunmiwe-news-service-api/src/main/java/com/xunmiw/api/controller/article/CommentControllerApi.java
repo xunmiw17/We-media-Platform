@@ -4,7 +4,6 @@ import com.xunmiw.grace.result.GraceJSONResult;
 import com.xunmiw.pojo.bo.CommentReplyBO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import io.swagger.models.auth.In;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,4 +27,15 @@ public interface CommentControllerApi {
     public GraceJSONResult list(@RequestParam String articleId,
                                 @RequestParam Integer page,
                                 @RequestParam Integer pageSize);
+
+    @ApiOperation(value = "分页查询用户历史评论", notes = "分页查询用户历史评论", httpMethod = "POST")
+    @PostMapping("mng")
+    public GraceJSONResult mng(@RequestParam String writerId,
+                               @RequestParam Integer page,
+                               @RequestParam Integer pageSize);
+
+    @ApiOperation(value = "删除评论", notes = "删除评论", httpMethod = "POST")
+    @PostMapping("delete")
+    public GraceJSONResult delete(@RequestParam String writerId,
+                                  @RequestParam String commentId);
 }

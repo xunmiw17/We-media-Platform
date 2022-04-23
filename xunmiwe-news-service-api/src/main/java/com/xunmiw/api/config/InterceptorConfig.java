@@ -48,7 +48,8 @@ public class InterceptorConfig implements WebMvcConfigurer {
                 .addPathPatterns("/article/delete")
                 .addPathPatterns("/article/withdraw")
                 .addPathPatterns("/fans/follow")
-                .addPathPatterns("/fans/unfollow");
+                .addPathPatterns("/fans/unfollow")
+                .addPathPatterns("/comment/mng");
         registry.addInterceptor(userActiveInterceptor())
                 .addPathPatterns("/user/getAccountInfo")
                 .addPathPatterns("/fans/follow")
