@@ -10,13 +10,23 @@ import com.xunmiw.grace.result.GraceJSONResult;
 import com.xunmiw.grace.result.ResponseStatusEnum;
 import com.xunmiw.pojo.Category;
 import com.xunmiw.pojo.bo.ArticleBO;
+import com.xunmiw.pojo.vo.ArticleDetailVO;
+import com.xunmiw.utils.JsonUtils;
 import com.xunmiw.utils.PagedGridResult;
+import freemarker.template.Configuration;
+import freemarker.template.Template;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.Writer;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 @RestController
@@ -24,6 +34,9 @@ public class ArticleController extends BaseController implements ArticleControll
 
     @Autowired
     private ArticleService articleService;
+
+    @Value("${freemarker.html.article}")
+    private String articlePath;
 
     @Override
     public GraceJSONResult createArticle(ArticleBO articleBO, BindingResult bindingResult) {
@@ -88,7 +101,66 @@ public class ArticleController extends BaseController implements ArticleControll
         } else {
             return GraceJSONResult.errorCustom(ResponseStatusEnum.ARTICLE_REVIEW_ERROR);
         }
+
+        if (passOrNot == YesOrNo.YES.type) {
+            // 审核成功，生成文章详情页静态html
+            try {
+                createArticleHTML(articleId);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
         return GraceJSONResult.ok();
+    }
+
+    /**
+     * 文章生成HTML
+     * @param articleId
+     * @throws Exception
+     */
+    public void createArticleHTML(String articleId) throws Exception {
+        // 0. 配置freemarker基本环境
+        Configuration config = new Configuration(Configuration.getVersion());
+        // 声明freemarker模板所需要加载的目录的位置
+        String classPath = this.getClass().getResource("/").getPath();
+        config.setDirectoryForTemplateLoading(new File(classPath + "templates"));
+
+        // 1. 获得现有的模板ftl文件
+        Template template = config.getTemplate("detail.ftl", "utf-8");
+
+        // 2. 获得文章详情数据
+        ArticleDetailVO articleDetailVO = getArticleDetail(articleId);
+        System.out.println("=======================" + articleDetailVO);
+        Map<String, Object> map = new HashMap<>();
+        map.put("articleDetail", articleDetailVO);
+
+        // 3. 融合动态数据和ftl，生成html
+        File temp = new File(articlePath);
+        if (!temp.exists()) {
+            temp.mkdirs();
+        }
+
+        Writer out = new FileWriter(articlePath + File.separator + articleId + ".html");
+        template.process(map, out);
+        out.close();
+    }
+
+    /**
+     * 根据文章id发起远程调用（本服务的另一个Controller），获得文章详情数据
+     * @param articleId
+     * @return
+     */
+    public ArticleDetailVO getArticleDetail(String articleId) {
+        String articleDetailUrl = "http://www.imoocnews.com:8001/portal/article/detail?articleId=" + articleId;
+        ResponseEntity<GraceJSONResult> responseEntity = restTemplate.getForEntity(articleDetailUrl, GraceJSONResult.class);
+        GraceJSONResult result = responseEntity.getBody();
+        ArticleDetailVO articleDetailVO = null;
+        if (result.getStatus().equals(ResponseStatusEnum.SUCCESS.status())) {
+            String jsonDetails = JsonUtils.objectToJson(result.getData());
+            articleDetailVO = JsonUtils.jsonToPojo(jsonDetails, ArticleDetailVO.class);
+        }
+        return articleDetailVO;
     }
 
     @Override

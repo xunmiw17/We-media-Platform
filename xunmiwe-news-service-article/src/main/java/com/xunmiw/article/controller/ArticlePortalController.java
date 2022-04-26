@@ -3,20 +3,16 @@ package com.xunmiw.article.controller;
 import com.xunmiw.api.BaseController;
 import com.xunmiw.api.controller.article.ArticlePortalControllerApi;
 import com.xunmiw.article.service.ArticlePortalService;
-import com.xunmiw.exception.GraceException;
 import com.xunmiw.grace.result.GraceJSONResult;
-import com.xunmiw.grace.result.ResponseStatusEnum;
 import com.xunmiw.pojo.Article;
 import com.xunmiw.pojo.vo.AppUserVO;
 import com.xunmiw.pojo.vo.ArticleDetailVO;
 import com.xunmiw.pojo.vo.IndexArticleVO;
 import com.xunmiw.utils.IPUtil;
-import com.xunmiw.utils.JsonUtils;
 import com.xunmiw.utils.PagedGridResult;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
@@ -31,9 +27,6 @@ public class ArticlePortalController extends BaseController implements ArticlePo
 
     @Autowired
     private ArticlePortalService articlePortalService;
-
-    @Autowired
-    private RestTemplate restTemplate;
 
     @Override
     public GraceJSONResult queryUserPortalArticles(String keyword, Integer category, Integer page, Integer pageSize) {

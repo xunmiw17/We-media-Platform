@@ -42,6 +42,12 @@ spring:
     mongodb:
       uri: mongodb://root:root@10.18.185.191:27017
       database: xunmiwe-news
+  freemarker:
+    charset: UTF-8
+    content-type: text/html
+    suffix: .ftl
+    template-loader-path: classpath:/templates
+
 
 ############################################################
 #
@@ -66,3 +72,9 @@ mapper:
 pagehelper:
   helperDialect: mysql
   supportMethodsArguments: true
+
+# 定义freemarker生成的html路径位置
+freemarker:
+  html:
+    target: /Users/wuxunmin/IdeaProjects/freemarker_hml
+    article: /Users/wuxunmin/Downloads/apache-tomcat-9.0.60/webapps/imooc-news/portal/a
