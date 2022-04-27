@@ -14,7 +14,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.RestTemplate;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
@@ -81,6 +80,12 @@ public class ArticlePortalController extends BaseController implements ArticlePo
             articleDetailVO.setReadCounts(Integer.valueOf(readCountStr));
 
         return GraceJSONResult.ok(articleDetailVO);
+    }
+
+    @Override
+    public Integer readCounts(String articleId) {
+        String readCountStr = redisOperator.get(REDIS_ARTICLE_READ_COUNT + ":" + articleId);
+        return Integer.valueOf(readCountStr);
     }
 
     @Override
