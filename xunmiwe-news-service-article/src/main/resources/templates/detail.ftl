@@ -25,7 +25,7 @@
     <link href="../libs/vuePaging/VuePaging//zpageNav.css" rel="stylesheet" />
 
     <!-- <link rel="shortcut icon" href="img/mu-toutiao.ico" /> -->
-    <link rel="shortcut icon" href="../img/mu-toutiao.ico" />
+    <link rel="shortcut icon" href="../img/icn.jpg" />
 
     <style type="text/css">
         .social-share .social-share-icon {
@@ -46,7 +46,7 @@
                 <div class="left-part">
                     <div class="logo-wrapper" @click="goIndex()">
                         <!-- <img src="./img/imooc-news-logo.png" class="big-logo"/> -->
-                        <img src="../img/imooc-news-logo.png" class="big-logo"/>
+                        <img src="../img/logo.jpg" class="big-logo"/>
                     </div>
 
                     <div class="menus">

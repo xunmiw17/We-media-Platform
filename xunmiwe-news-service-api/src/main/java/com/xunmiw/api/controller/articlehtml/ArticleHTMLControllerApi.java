@@ -13,4 +13,8 @@ public interface ArticleHTMLControllerApi {
     @ApiOperation(value = "从GridFS中下载已上传的文章HTML", notes = "从GridFS中下载已上传的文章HTML", httpMethod = "GET")
     @GetMapping("download")
     public Integer download(@RequestParam String articleId, @RequestParam String fileId) throws Exception;
+
+    @ApiOperation(value = "从GridFS中删除文章HTML", notes = "从GridFS中删除文章HTML", httpMethod = "GET")
+    @GetMapping("delete")
+    public Integer delete(@RequestParam String articleId);
 }

@@ -66,4 +66,10 @@ public interface ArticleService {
      * @param fileId
      */
     void createArticleFileId(String articleId, String fileId);
+
+    /**
+     * 从GridFS中删除文章
+     * @param articleId
+     */
+    void deleteArticleFromGridFS(String articleId);
 }

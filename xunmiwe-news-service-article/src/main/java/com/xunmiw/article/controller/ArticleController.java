@@ -27,7 +27,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.RestTemplate;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -135,7 +134,7 @@ public class ArticleController extends BaseController implements ArticleControll
      * @param articleId
      * @throws Exception
      */
-    public void createArticleHTML(String articleId) throws Exception {
+    private void createArticleHTML(String articleId) throws Exception {
         // 0. 配置freemarker基本环境
         Configuration config = new Configuration(Configuration.getVersion());
         // 声明freemarker模板所需要加载的目录的位置
@@ -167,7 +166,7 @@ public class ArticleController extends BaseController implements ArticleControll
      * @param articleId
      * @throws Exception
      */
-    public String createArticleHTMLToGridFS(String articleId) throws Exception {
+    private String createArticleHTMLToGridFS(String articleId) throws Exception {
         Configuration config = new Configuration(Configuration.getVersion());
         String classPath = this.getClass().getResource("/").getPath();
         config.setDirectoryForTemplateLoading(new File(classPath + "templates"));
@@ -201,7 +200,7 @@ public class ArticleController extends BaseController implements ArticleControll
      * @param articleId
      * @return
      */
-    public ArticleDetailVO getArticleDetail(String articleId) {
+    private ArticleDetailVO getArticleDetail(String articleId) {
         String articleDetailUrl = "http://www.imoocnews.com:8001/portal/article/detail?articleId=" + articleId;
         ResponseEntity<GraceJSONResult> responseEntity = restTemplate.getForEntity(articleDetailUrl, GraceJSONResult.class);
         GraceJSONResult result = responseEntity.getBody();
@@ -215,8 +214,22 @@ public class ArticleController extends BaseController implements ArticleControll
 
     @Override
     public GraceJSONResult delete(String userId, String articleId) {
+        // 从GridFS中删除文章
+        articleService.deleteArticleFromGridFS(articleId);
+        // 从数据库中删除文章
         articleService.deleteArticle(userId, articleId);
+        // 从Tomcat容器中删除文章HTML静态页面
+        deleteArticleHTML(articleId);
         return GraceJSONResult.ok();
+    }
+
+    private void deleteArticleHTML(String articleId) {
+        String deleteUrl = "http://html.imoocnews.com:8002/article/html/delete?articleId=" + articleId;
+        ResponseEntity<Integer> responseEntity = restTemplate.getForEntity(deleteUrl, Integer.class);
+        int status = responseEntity.getBody();
+        if (status != HttpStatus.OK.value()) {
+            GraceException.display(ResponseStatusEnum.ARTICLE_DELETE_ERROR);
+        }
     }
 
     @Override

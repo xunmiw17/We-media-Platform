@@ -15,7 +15,7 @@ import com.xunmiw.pojo.bo.ArticleBO;
 import com.xunmiw.utils.PagedGridResult;
 import com.xunmiw.utils.extend.AliTextReviewUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.checkerframework.checker.units.qual.A;
+import org.bson.types.ObjectId;
 import org.n3r.idworker.Sid;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -144,6 +144,7 @@ public class ArticleServiceImpl extends BaseService implements ArticleService {
         criteria.andEqualTo("id", articleId);
 
         Article article = new Article();
+        // 逻辑删除
         article.setIsDelete(YesOrNo.YES.type);
 
         int result = articleMapper.updateByExampleSelective(article, example);
@@ -163,5 +164,16 @@ public class ArticleServiceImpl extends BaseService implements ArticleService {
         if (result != 1) {
             GraceException.display(ResponseStatusEnum.SYSTEM_ERROR);
         }
+    }
+
+    @Override
+    public void deleteArticleFromGridFS(String articleId) {
+        Article article = new Article();
+        article.setId(articleId);
+
+        Article target = articleMapper.selectOne(article);
+        String fileId = target.getMongoFileId();
+        ObjectId objectId = new ObjectId(fileId);
+        gridFSBucket.delete(objectId);
     }
 }

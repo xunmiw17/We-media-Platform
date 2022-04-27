@@ -31,4 +31,12 @@ public class ArticleHTMLController implements ArticleHTMLControllerApi {
         gridFSBucket.downloadToStream(new ObjectId(fileId), os);
         return HttpStatus.OK.value();
     }
+
+    @Override
+    public Integer delete(String articleId) {
+        String path = articlePath + File.separator + articleId + ".html";
+        File file = new File(path);
+        file.delete();
+        return HttpStatus.OK.value();
+    }
 }
