@@ -1,5 +1,6 @@
 package com.xunmiw.article.controller;
 
+import com.mongodb.client.gridfs.GridFSBucket;
 import com.xunmiw.api.BaseController;
 import com.xunmiw.api.controller.article.ArticleControllerApi;
 import com.xunmiw.article.service.ArticleService;
@@ -15,15 +16,19 @@ import com.xunmiw.utils.JsonUtils;
 import com.xunmiw.utils.PagedGridResult;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
+import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.File;
 import java.io.FileWriter;
+import java.io.InputStream;
 import java.io.Writer;
 import java.util.Date;
 import java.util.HashMap;
@@ -37,6 +42,9 @@ public class ArticleController extends BaseController implements ArticleControll
 
     @Value("${freemarker.html.article}")
     private String articlePath;
+
+    @Autowired
+    private GridFSBucket gridFSBucket;
 
     @Override
     public GraceJSONResult createArticle(ArticleBO articleBO, BindingResult bindingResult) {
@@ -105,7 +113,10 @@ public class ArticleController extends BaseController implements ArticleControll
         if (passOrNot == YesOrNo.YES.type) {
             // 审核成功，生成文章详情页静态html
             try {
-                createArticleHTML(articleId);
+                // createArticleHTML(articleId);
+                String fileId = createArticleHTMLToGridFS(articleId);
+                // 将文件id存储到对应文章关联保存
+                articleService.createArticleFileId(articleId, fileId);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -144,6 +155,30 @@ public class ArticleController extends BaseController implements ArticleControll
         Writer out = new FileWriter(articlePath + File.separator + articleId + ".html");
         template.process(map, out);
         out.close();
+    }
+
+    /**
+     * 文章生成HTML，上传至GridFS
+     * @param articleId
+     * @throws Exception
+     */
+    public String createArticleHTMLToGridFS(String articleId) throws Exception {
+        Configuration config = new Configuration(Configuration.getVersion());
+        String classPath = this.getClass().getResource("/").getPath();
+        config.setDirectoryForTemplateLoading(new File(classPath + "templates"));
+
+        Template template = config.getTemplate("detail.ftl", "utf-8");
+
+        ArticleDetailVO articleDetailVO = getArticleDetail(articleId);
+        System.out.println("=======================" + articleDetailVO);
+        Map<String, Object> map = new HashMap<>();
+        map.put("articleDetail", articleDetailVO);
+
+        String htmlContent = FreeMarkerTemplateUtils.processTemplateIntoString(template, map);
+        InputStream is = IOUtils.toInputStream(htmlContent);
+
+        ObjectId fileId = gridFSBucket.uploadFromStream(articleId + ".html", is);
+        return fileId.toString();
     }
 
     /**

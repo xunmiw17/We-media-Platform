@@ -1,4 +1,4 @@
-package com.xunmiw.files;
+package com.xunmiw.api.config;
 
 import com.mongodb.MongoClient;
 import com.mongodb.client.MongoDatabase;

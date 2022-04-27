@@ -59,4 +59,11 @@ public interface ArticleService {
      * @param articleId
      */
     void deleteArticle(String userId, String articleId);
+
+    /**
+     * 将上传至GridFS的HTML文件Id关联到对应文章
+     * @param articleId
+     * @param fileId
+     */
+    void createArticleFileId(String articleId, String fileId);
 }

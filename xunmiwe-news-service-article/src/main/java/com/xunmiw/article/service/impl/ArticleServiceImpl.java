@@ -15,6 +15,7 @@ import com.xunmiw.pojo.bo.ArticleBO;
 import com.xunmiw.utils.PagedGridResult;
 import com.xunmiw.utils.extend.AliTextReviewUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.checkerframework.checker.units.qual.A;
 import org.n3r.idworker.Sid;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,30 +60,6 @@ public class ArticleServiceImpl extends BaseService implements ArticleService {
         if (result != 1) {
             GraceException.display(ResponseStatusEnum.ARTICLE_CREATE_ERROR);
         }
-
-        // // 通过阿里智能AI实现对文章文本的自动检测
-        // String reviewTextResult = aliTextReviewUtils.reviewTextContent(articleBO.getContent());
-        // if (reviewTextResult.equals(ArticleReviewLevel.PASS.type)) {
-        //     // 修改文章状态为审核通过
-        //     updateArticleStatus(article.getId(), ArticleReviewStatus.SUCCESS.type);
-        // } else if (reviewTextResult.equals(ArticleReviewLevel.REVIEW.type)) {
-        //     // 修改文章状态为需要人工审核
-        //     updateArticleStatus(article.getId(), ArticleReviewStatus.WAITING_MANUAL.type);
-        // } else if (reviewTextResult.equals(ArticleReviewLevel.BLOCK.type)) {
-        //     // 修改文章状态为审核未通过
-        //     updateArticleStatus(article.getId(), ArticleReviewStatus.FAILED.type);
-        // }
-
-        // 模拟阿里智能文本检测，随机生成文章状态，用于测试
-        // Random random = new Random();
-        // double rand = random.nextDouble();
-        // if (rand < 0.15) {
-        //     updateArticleStatus(article.getId(), ArticleReviewStatus.FAILED.type);
-        // } else if (rand < 0.35) {
-        //     updateArticleStatus(article.getId(), ArticleReviewStatus.WAITING_MANUAL.type);
-        // } else {
-        //     updateArticleStatus(article.getId(), ArticleReviewStatus.SUCCESS.type);
-        // }
 
         // 不进行AI文本检测，直接进入人工审核
         updateArticleStatus(article.getId(), ArticleReviewStatus.WAITING_MANUAL.type);
@@ -175,4 +152,16 @@ public class ArticleServiceImpl extends BaseService implements ArticleService {
         }
     }
 
+    @Override
+    @Transactional
+    public void createArticleFileId(String articleId, String fileId) {
+        Article article = new Article();
+        article.setId(articleId);
+        article.setMongoFileId(fileId);
+
+        int result = articleMapper.updateByPrimaryKeySelective(article);
+        if (result != 1) {
+            GraceException.display(ResponseStatusEnum.SYSTEM_ERROR);
+        }
+    }
 }

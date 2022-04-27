@@ -11,6 +11,7 @@
         <module name="xunmiwe-news-service-files" />
         <module name="xunmiwe-news-service-admin" />
         <module name="mybatis-generator-database" />
+        <module name="xunmiwe-news-service-article-html" />
         <module name="xunmiwe-news-service-user" />
         <module name="xunmiwe-news-model" />
         <module name="xunmiwe-news-service-api" />
@@ -28,6 +29,7 @@
       <module name="xunmiwe-news-service-admin" options="-parameters" />
       <module name="xunmiwe-news-service-api" options="-parameters" />
       <module name="xunmiwe-news-service-article" options="-parameters" />
+      <module name="xunmiwe-news-service-article-html" options="-parameters" />
       <module name="xunmiwe-news-service-files" options="-parameters" />
       <module name="xunmiwe-news-service-user" options="-parameters" />
     </option>
