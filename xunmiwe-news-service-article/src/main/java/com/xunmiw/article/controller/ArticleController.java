@@ -7,6 +7,7 @@ import com.xunmiw.article.service.ArticleService;
 import com.xunmiw.enums.ArticleCoverType;
 import com.xunmiw.enums.ArticleReviewStatus;
 import com.xunmiw.enums.YesOrNo;
+import com.xunmiw.exception.GraceException;
 import com.xunmiw.grace.result.GraceJSONResult;
 import com.xunmiw.grace.result.ResponseStatusEnum;
 import com.xunmiw.pojo.Category;
@@ -21,10 +22,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -117,6 +120,8 @@ public class ArticleController extends BaseController implements ArticleControll
                 String fileId = createArticleHTMLToGridFS(articleId);
                 // 将文件id存储到对应文章关联保存
                 articleService.createArticleFileId(articleId, fileId);
+                // 下载已上传到GridFS的文章静态HTML
+                downloadHTML(articleId, fileId);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -179,6 +184,16 @@ public class ArticleController extends BaseController implements ArticleControll
 
         ObjectId fileId = gridFSBucket.uploadFromStream(articleId + ".html", is);
         return fileId.toString();
+    }
+
+    private void downloadHTML(String articleId, String fileId) {
+        String downloadURL = "http://html.imoocnews.com:8002/article/html/download?articleId="
+                + articleId + "&fileId=" + fileId;
+        ResponseEntity<Integer> responseEntity = restTemplate.getForEntity(downloadURL, Integer.class);
+        int status = responseEntity.getBody();
+        if (status != HttpStatus.OK.value()) {
+            GraceException.display(ResponseStatusEnum.ARTICLE_REVIEW_ERROR);
+        }
     }
 
     /**
