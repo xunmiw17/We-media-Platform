@@ -1,6 +1,7 @@
 package com.xunmiw.article.service.impl;
 
 import com.github.pagehelper.PageHelper;
+import com.mongodb.client.gridfs.GridFSBucket;
 import com.xunmiw.api.service.BaseService;
 import com.xunmiw.article.mapper.ArticleMapper;
 import com.xunmiw.article.mapper.ArticleMapperCustom;
@@ -40,6 +41,9 @@ public class ArticleServiceImpl extends BaseService implements ArticleService {
 
     @Autowired
     private AliTextReviewUtils aliTextReviewUtils;
+
+    @Autowired
+    private GridFSBucket gridFSBucket;
 
     @Override
     @Transactional

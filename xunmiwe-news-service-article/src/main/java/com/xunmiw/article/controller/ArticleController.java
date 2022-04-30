@@ -2,6 +2,7 @@ package com.xunmiw.article.controller;
 
 import com.mongodb.client.gridfs.GridFSBucket;
 import com.xunmiw.api.BaseController;
+import com.xunmiw.api.config.RabbitMQConfig;
 import com.xunmiw.api.controller.article.ArticleControllerApi;
 import com.xunmiw.article.service.ArticleService;
 import com.xunmiw.enums.ArticleCoverType;
@@ -20,6 +21,7 @@ import freemarker.template.Template;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -47,6 +49,9 @@ public class ArticleController extends BaseController implements ArticleControll
 
     @Autowired
     private GridFSBucket gridFSBucket;
+
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
 
     @Override
     public GraceJSONResult createArticle(ArticleBO articleBO, BindingResult bindingResult) {
@@ -120,7 +125,10 @@ public class ArticleController extends BaseController implements ArticleControll
                 // 将文件id存储到对应文章关联保存
                 articleService.createArticleFileId(articleId, fileId);
                 // 下载已上传到GridFS的文章静态HTML
-                downloadHTML(articleId, fileId);
+                // downloadHTML(articleId, fileId);
+
+                // 发布消息，传入articleId和fileId让article-html服务监听并下载HTML页面
+                publishMessageDownloadingHTML(articleId, fileId);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -185,6 +193,13 @@ public class ArticleController extends BaseController implements ArticleControll
         return fileId.toString();
     }
 
+    /**
+     * 原本用于article服务直接发起远程调用使article-html服务从GridFS中下载HTML页面，现被消息队列替换
+     * （见publishMessageDownloadingHTML方法）
+     * @param articleId
+     * @param fileId
+     */
+    @Deprecated
     private void downloadHTML(String articleId, String fileId) {
         String downloadURL = "http://html.imoocnews.com:8002/article/html/download?articleId="
                 + articleId + "&fileId=" + fileId;
@@ -193,6 +208,10 @@ public class ArticleController extends BaseController implements ArticleControll
         if (status != HttpStatus.OK.value()) {
             GraceException.display(ResponseStatusEnum.ARTICLE_REVIEW_ERROR);
         }
+    }
+
+    private void publishMessageDownloadingHTML(String articleId, String fileId) {
+        rabbitTemplate.convertAndSend(RabbitMQConfig.ARTICLE_EXCHANGE, "article.download", articleId + "," + fileId);
     }
 
     /**
@@ -219,10 +238,14 @@ public class ArticleController extends BaseController implements ArticleControll
         // 从数据库中删除文章
         articleService.deleteArticle(userId, articleId);
         // 从Tomcat容器中删除文章HTML静态页面
-        deleteArticleHTML(articleId);
+        // deleteArticleHTML(articleId);
+
+        // 发布消息，让article-html服务删除文章HTML静态页面
+        publishMessageDeletingHTML(articleId);
         return GraceJSONResult.ok();
     }
 
+    @Deprecated
     private void deleteArticleHTML(String articleId) {
         String deleteUrl = "http://html.imoocnews.com:8002/article/html/delete?articleId=" + articleId;
         ResponseEntity<Integer> responseEntity = restTemplate.getForEntity(deleteUrl, Integer.class);
@@ -230,6 +253,10 @@ public class ArticleController extends BaseController implements ArticleControll
         if (status != HttpStatus.OK.value()) {
             GraceException.display(ResponseStatusEnum.ARTICLE_DELETE_ERROR);
         }
+    }
+
+    private void publishMessageDeletingHTML(String articleId) {
+        rabbitTemplate.convertAndSend(RabbitMQConfig.ARTICLE_EXCHANGE, "article.delete", articleId);
     }
 
     @Override

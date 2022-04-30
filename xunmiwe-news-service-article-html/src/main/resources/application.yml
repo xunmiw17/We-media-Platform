@@ -32,6 +32,12 @@ spring:
     content-type: text/html
     suffix: .ftl
     template-loader-path: classpath:/templates
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: xunmiw
+    password: la178944
+    virtual-host: xunmiwe-news
 
 # 定义freemarker生成的html路径位置
 freemarker:
