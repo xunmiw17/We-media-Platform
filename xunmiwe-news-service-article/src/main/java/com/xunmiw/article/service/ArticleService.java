@@ -20,6 +20,12 @@ public interface ArticleService {
     void publishAppointedArticles();
 
     /**
+     * 发布定时发布的单条文章
+     * @param articleId
+     */
+    void updateArticleAppointStatus(String articleId);
+
+    /**
      * 查询我的文章列表
      *
      * @param userId

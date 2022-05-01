@@ -2,6 +2,7 @@ package com.xunmiw.article.service.impl;
 
 import com.github.pagehelper.PageHelper;
 import com.mongodb.client.gridfs.GridFSBucket;
+import com.xunmiw.api.config.RabbitMQConfig;
 import com.xunmiw.api.service.BaseService;
 import com.xunmiw.article.mapper.ArticleMapper;
 import com.xunmiw.article.mapper.ArticleMapperCustom;
@@ -18,6 +19,11 @@ import com.xunmiw.utils.extend.AliTextReviewUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
 import org.n3r.idworker.Sid;
+import org.springframework.amqp.AmqpException;
+import org.springframework.amqp.core.Message;
+import org.springframework.amqp.core.MessageDeliveryMode;
+import org.springframework.amqp.core.MessagePostProcessor;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -45,6 +51,9 @@ public class ArticleServiceImpl extends BaseService implements ArticleService {
     @Autowired
     private GridFSBucket gridFSBucket;
 
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
+
     @Override
     @Transactional
     public void createArticle(ArticleBO articleBO) {
@@ -65,6 +74,27 @@ public class ArticleServiceImpl extends BaseService implements ArticleService {
             GraceException.display(ResponseStatusEnum.ARTICLE_CREATE_ERROR);
         }
 
+        // 计算定时发布时间，发送延迟消息
+        if (article.getIsAppoint() == ArticleAppointType.TIMING.type) {
+
+            // 计算延迟发布时间
+            Date end = article.getPublishTime();
+            Date start = new Date();
+            int delay = (int) (end.getTime() - start.getTime());
+
+            // 设置messagePostProcessor，指定延迟时间
+            MessagePostProcessor messagePostProcessor = new MessagePostProcessor() {
+                @Override
+                public Message postProcessMessage(Message message) throws AmqpException {
+                    message.getMessageProperties().setDeliveryMode(MessageDeliveryMode.PERSISTENT);
+                    message.getMessageProperties().setDelay(delay);
+                    return message;
+                }
+            };
+
+            rabbitTemplate.convertAndSend(RabbitMQConfig.ARTICLE_DELAYED_PUBLISH_EXCHANGE, "delay.publish.article", article.getId(), messagePostProcessor);
+        }
+
         // 不进行AI文本检测，直接进入人工审核
         updateArticleStatus(article.getId(), ArticleReviewStatus.WAITING_MANUAL.type);
     }
@@ -73,6 +103,16 @@ public class ArticleServiceImpl extends BaseService implements ArticleService {
     @Transactional
     public void publishAppointedArticles() {
         articleMapperCustom.publishAppointedArticles();
+    }
+
+    @Override
+    @Transactional
+    public void updateArticleAppointStatus(String articleId) {
+        Article article = new Article();
+        article.setId(articleId);
+        article.setIsAppoint(ArticleAppointType.IMMEDIATELY.type);
+
+        articleMapper.updateByPrimaryKeySelective(article);
     }
 
     @Override

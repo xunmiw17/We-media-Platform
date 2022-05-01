@@ -64,9 +64,8 @@ public class ArticleController extends BaseController implements ArticleControll
         if (articleBO.getArticleType() == ArticleCoverType.ONE_IMAGE.type) {
             if (StringUtils.isBlank(articleBO.getArticleCover()))
                 return GraceJSONResult.errorCustom(ResponseStatusEnum.ARTICLE_COVER_NOT_EXIST_ERROR);
-        } else if (articleBO.getArticleType() == ArticleCoverType.WORDS.type) {
+        } else if (articleBO.getArticleType() == ArticleCoverType.WORDS.type)
             articleBO.setArticleCover("");
-        }
 
         // 判断文章分类是否存在
         String jsonCategories = redisOperator.get(REDIS_CATEGORY_LIST);
@@ -182,7 +181,6 @@ public class ArticleController extends BaseController implements ArticleControll
         Template template = config.getTemplate("detail.ftl", "utf-8");
 
         ArticleDetailVO articleDetailVO = getArticleDetail(articleId);
-        System.out.println("=======================" + articleDetailVO);
         Map<String, Object> map = new HashMap<>();
         map.put("articleDetail", articleDetailVO);
 

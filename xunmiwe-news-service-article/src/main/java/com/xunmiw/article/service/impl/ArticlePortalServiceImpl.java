@@ -100,7 +100,7 @@ public class ArticlePortalServiceImpl extends BaseService implements ArticlePort
         Example example = new Example(Article.class);
         Example.Criteria criteria = example.createCriteria();
         criteria.andEqualTo("id", articleId);
-        criteria.andEqualTo("isAppoint", YesOrNo.NO.type);
+        //criteria.andEqualTo("isAppoint", YesOrNo.NO.type);
         criteria.andEqualTo("isDelete", YesOrNo.NO.type);
         criteria.andEqualTo("articleStatus", ArticleReviewStatus.SUCCESS.type);
 
