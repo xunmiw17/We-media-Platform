@@ -1,0 +1,33 @@
+############################################################
+#
+# Eureka注册中心
+# web访问端口号  约定：6000
+#
+############################################################
+server:
+  port: 7001
+  tomcat:
+    uri-encoding: UTF-8
+
+############################################################
+#
+# 配置项目信息
+#
+############################################################
+spring:
+  application:
+    name: springcloud-eureka
+
+############################################################
+#
+# Eureka配置信息
+#
+############################################################
+eureka:
+  instance:
+    hostname: localhost       # Eureka实例的hostname
+  client:
+    register-with-eureka: false   # 是否将此服务注册到Eureka
+    fetch-registry: false         # 是否从Eureka拉取服务
+    service-url:
+      defaultZone: http://localhost:7001/eureka/      # 单实例Eureka服务地址

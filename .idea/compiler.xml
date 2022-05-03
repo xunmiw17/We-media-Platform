@@ -10,6 +10,7 @@
         <module name="xunmiwe-news-service-article" />
         <module name="xunmiwe-news-service-files" />
         <module name="xunmiwe-news-service-admin" />
+        <module name="springcloud-eureka" />
         <module name="mybatis-generator-database" />
         <module name="xunmiwe-news-service-article-html" />
         <module name="xunmiwe-news-service-user" />
@@ -23,6 +24,7 @@
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="springcloud-eureka" options="-parameters" />
       <module name="xunmiwe-news" options="" />
       <module name="xunmiwe-news-common" options="-parameters" />
       <module name="xunmiwe-news-model" options="-parameters" />
