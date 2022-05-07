@@ -4,7 +4,6 @@ import com.xunmiw.grace.result.GraceJSONResult;
 import com.xunmiw.pojo.bo.FriendLinkBO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -15,8 +14,7 @@ public interface FriendLinkControllerApi {
 
     @ApiOperation(value = "新增/修改友情链接", notes = "新增/修改友情链接", httpMethod = "POST")
     @PostMapping("/saveOrUpdateFriendLink")
-    public GraceJSONResult saveOrUpdateFriendLink(@RequestBody @Valid FriendLinkBO friendLinkBO,
-                                                  BindingResult bindingResult);
+    public GraceJSONResult saveOrUpdateFriendLink(@RequestBody @Valid FriendLinkBO friendLinkBO);
 
     @ApiOperation(value = "查询友情链接列表", notes = "查询友情链接列表", httpMethod = "POST")
     @PostMapping("getFriendLinkList")

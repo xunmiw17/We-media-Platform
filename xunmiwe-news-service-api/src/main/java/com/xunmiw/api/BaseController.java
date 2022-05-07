@@ -1,19 +1,12 @@
 package com.xunmiw.api;
 
 import com.xunmiw.api.controller.user.UserControllerApi;
-import com.xunmiw.exception.GraceException;
-import com.xunmiw.grace.result.GraceJSONResult;
-import com.xunmiw.grace.result.ResponseStatusEnum;
 import com.xunmiw.pojo.Category;
-import com.xunmiw.pojo.vo.AppUserVO;
 import com.xunmiw.utils.JsonUtils;
 import com.xunmiw.utils.RedisOperator;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.web.client.RestTemplate;
 
 import javax.servlet.http.Cookie;
@@ -21,10 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 public class BaseController {
 
@@ -37,9 +27,6 @@ public class BaseController {
     // 注入服务发现，获得已经注册的服务相关信息
     @Autowired
     private DiscoveryClient discoveryClient;
-
-    @Autowired
-    private UserControllerApi userControllerApi;
 
     public static final String MOBILE_SMSCODE = "mobile:smscode";
     public static final String REDIS_USER_TOKEN = "redis_user_token";
@@ -60,23 +47,6 @@ public class BaseController {
 
     @Value("${website.domain-name}")
     public String DOMAIN_NAME;
-
-    /**
-     * 获取BO中的错误信息
-     * @param result
-     */
-    public Map<String, String> getErrors(BindingResult result) {
-        Map<String, String> map = new HashMap<>();
-        List<FieldError> errorList = result.getFieldErrors();
-        for (FieldError fieldError : errorList) {
-            // 发生验证错误时对应的属性
-            String field = fieldError.getField();
-            // 验证的错误消息
-            String msg = fieldError.getDefaultMessage();
-            map.put(field, msg);
-        }
-        return map;
-    }
 
     public void setCookie(HttpServletRequest request, HttpServletResponse response, String cookieName, String cookieValue,
                             Integer maxAge) {
@@ -118,41 +88,5 @@ public class BaseController {
             }
         }
         return null;
-    }
-
-    /**
-     * 发起远程调用，获得指定用户(们)的基本信息
-     * @param userIds
-     * @return
-     */
-    public List<AppUserVO> getUserList(Set<String> userIds) {
-
-        // 硬编码服务地址 (最原始的方法)
-        //  String getUserInfoUrl = "http://user.imoocnews.com:8003/user/queryUserByIds?userIds=" + JsonUtils.objectToJson(userIds);
-
-        // 通过Eureka服务发现DiscoveryClient动态获取服务地址 (比直接硬编码更好)
-        // String serviceId = "SERVICE-USER";
-        // List<ServiceInstance> instances = discoveryClient.getInstances(serviceId);
-        // ServiceInstance userServiceInstance = instances.get(0);
-        // String getUserInfoUrl = "http://" + userServiceInstance.getHost() + ":" + userServiceInstance.getPort() + "/user"
-        //        + "/queryUserByIds?userIds=" + JsonUtils.objectToJson(userIds);
-
-        // 直接通过serviceId得到服务URL地址 (相比DiscoveryClient更简洁)
-        // String getUserInfoUrl = "http://" + serviceId + "/user/queryUserByIds?userIds=" + JsonUtils.objectToJson(userIds);
-
-        // 通过Feign实现远程调用 (相比使用serviceId硬编码更简洁)
-        GraceJSONResult responseBody = userControllerApi.queryUserByIds(JsonUtils.objectToJson(userIds));
-
-        // RestTemplate实现远程调用，可以 1) 直接硬编码 2) 通过DiscoveryClient获取服务host与port 3) 直接通过服务id硬编码
-        // ResponseEntity<GraceJSONResult> responseEntity = restTemplate.getForEntity(getUserInfoUrl, GraceJSONResult.class);
-        // GraceJSONResult responseBody = responseEntity.getBody();
-
-        // 注意这里使用equals方法进行两个Integer的比较，如果使用==，即使Integer的值相同，但Integer的地址不同，比较结果仍然为false
-        if (!responseBody.getStatus().equals(ResponseStatusEnum.SUCCESS.status())) {
-            GraceException.display(ResponseStatusEnum.SYSTEM_ERROR);
-        }
-        String usersJson = JsonUtils.objectToJson(responseBody.getData());
-        List<AppUserVO> users = JsonUtils.jsonToList(usersJson, AppUserVO.class);
-        return users;
     }
 }

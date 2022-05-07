@@ -10,7 +10,6 @@ import com.xunmiw.pojo.bo.CategoryBO;
 import com.xunmiw.pojo.vo.CategoryVO;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
@@ -29,11 +28,7 @@ public class CategoryMngController extends BaseController implements CategoryMng
     }
 
     @Override
-    public GraceJSONResult saveOrUpdateCategory(CategoryBO categoryBO, BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            Map<String, String> errors = getErrors(bindingResult);
-            return GraceJSONResult.errorMap(errors);
-        }
+    public GraceJSONResult saveOrUpdateCategory(CategoryBO categoryBO) {
         Category category = new Category();
         BeanUtils.copyProperties(categoryBO, category);
         if (category.getId() == null) {

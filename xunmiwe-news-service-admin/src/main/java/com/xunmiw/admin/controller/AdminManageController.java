@@ -19,7 +19,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCrypt;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
@@ -47,15 +46,8 @@ public class AdminManageController extends BaseController implements AdminManage
 
     @Override
     public GraceJSONResult adminLogin(AdminLoginBO adminLoginBO,
-                                      BindingResult result,
                                       HttpServletRequest request,
                                       HttpServletResponse response) {
-        // 0. 验证BO中的用户名/密码不为空
-        if (result.hasErrors()) {
-            Map<String, String> errors = getErrors(result);
-            return GraceJSONResult.errorMap(errors);
-        }
-
         // 1. 查询admin用户信息
         AdminUser adminUser = adminUserService.queryAdminByUsername(adminLoginBO.getUsername());
 
@@ -82,15 +74,8 @@ public class AdminManageController extends BaseController implements AdminManage
 
     @Override
     public GraceJSONResult addNewAdmin(NewAdminBO newAdminBO,
-                                       BindingResult result,
                                        HttpServletRequest request,
                                        HttpServletResponse response) {
-        // 0. 验证BO中的用户名/密码不为空
-        if (result.hasErrors()) {
-            Map<String, String> errors = getErrors(result);
-            return GraceJSONResult.errorMap(errors);
-        }
-
         // 1. Base64不为空，则代表人脸入库，否则需要用户输入密码和确认密码
         if (StringUtils.isBlank(newAdminBO.getImg64())) {
             if (StringUtils.isBlank(newAdminBO.getPassword()) ||

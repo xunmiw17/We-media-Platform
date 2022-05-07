@@ -4,7 +4,6 @@ import com.xunmiw.grace.result.GraceJSONResult;
 import com.xunmiw.pojo.bo.LoginBO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -30,7 +29,6 @@ public interface PassportControllerApi {
     @ApiOperation(value = "一键注册登录接口", notes = "一键注册登录接口", httpMethod = "POST")
     @PostMapping("/doLogin")
     public GraceJSONResult doLogin(@RequestBody @Valid LoginBO loginBO,
-                                   BindingResult result,
                                    HttpServletRequest request,
                                    HttpServletResponse response);
 

@@ -10,12 +10,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 public class FriendLinkController extends BaseController implements FriendLinkControllerApi {
@@ -26,12 +24,7 @@ public class FriendLinkController extends BaseController implements FriendLinkCo
     private FriendLinkService friendLinkService;
 
     @Override
-    public GraceJSONResult saveOrUpdateFriendLink(FriendLinkBO friendLinkBO, BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            Map<String, String> errors = getErrors(bindingResult);
-            return GraceJSONResult.errorMap(errors);
-        }
-
+    public GraceJSONResult saveOrUpdateFriendLink(FriendLinkBO friendLinkBO) {
         FriendLinkMO friendLinkMO = new FriendLinkMO();
         BeanUtils.copyProperties(friendLinkBO, friendLinkMO);
         friendLinkMO.setCreateTime(new Date());

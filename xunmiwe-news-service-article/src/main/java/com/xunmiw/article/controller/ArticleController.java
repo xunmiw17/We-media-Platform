@@ -27,7 +27,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.File;
@@ -54,12 +53,7 @@ public class ArticleController extends BaseController implements ArticleControll
     private RabbitTemplate rabbitTemplate;
 
     @Override
-    public GraceJSONResult createArticle(ArticleBO articleBO, BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            Map<String, String> errors = getErrors(bindingResult);
-            return GraceJSONResult.errorMap(errors);
-        }
-
+    public GraceJSONResult createArticle(ArticleBO articleBO) {
         // 判断文章封面类型，单图必填，纯文字则设置为空
         if (articleBO.getArticleType() == ArticleCoverType.ONE_IMAGE.type) {
             if (StringUtils.isBlank(articleBO.getArticleCover()))

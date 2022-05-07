@@ -6,8 +6,10 @@ import com.xunmiw.pojo.bo.NewAdminBO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -20,7 +22,6 @@ public interface AdminManageControllerApi {
     @ApiOperation(value = "admin登录", notes = "admin登录", httpMethod = "POST")
     @PostMapping("/adminLogin")
     public GraceJSONResult adminLogin(@RequestBody @Valid AdminLoginBO adminLoginBO,
-                                      BindingResult result,
                                       HttpServletRequest request,
                                       HttpServletResponse response);
 
@@ -31,7 +32,6 @@ public interface AdminManageControllerApi {
     @ApiOperation(value = "创建admin", notes = "创建admin", httpMethod = "POST")
     @PostMapping("/addNewAdmin")
     public GraceJSONResult addNewAdmin(@RequestBody NewAdminBO newAdminBO,
-                                       BindingResult result,
                                        HttpServletRequest request,
                                        HttpServletResponse response);
 
