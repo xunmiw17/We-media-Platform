@@ -9,6 +9,7 @@ import com.xunmiw.utils.JsonUtils;
 import com.xunmiw.utils.RedisOperator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -31,6 +32,10 @@ public class BaseController {
 
     @Autowired
     public RestTemplate restTemplate;
+
+    // 注入服务发现，获得已经注册的服务相关信息
+    @Autowired
+    private DiscoveryClient discoveryClient;
 
     public static final String MOBILE_SMSCODE = "mobile:smscode";
     public static final String REDIS_USER_TOKEN = "redis_user_token";
@@ -117,7 +122,20 @@ public class BaseController {
      * @return
      */
     public List<AppUserVO> getUserList(Set<String> userIds) {
-        String getUserInfoUrl = "http://user.imoocnews.com:8003/user/queryUserByIds?userIds=" + JsonUtils.objectToJson(userIds);
+        String serviceId = "SERVICE-USER";
+        // 根据serviceId实现服务发现，提供了负载均衡功能
+        // List<ServiceInstance> instances = discoveryClient.getInstances(serviceId);
+        // ServiceInstance userServiceInstance = instances.get(0);
+
+        // 直接通过serviceId得到服务URL地址
+        String getUserInfoUrl = "http://" + serviceId + "/user/queryUserByIds?userIds=" + JsonUtils.objectToJson(userIds);
+
+        // 通过Eureka服务发现动态获取服务地址
+        //String getUserInfoUrl = "http://" + userServiceInstance.getHost() + ":" + userServiceInstance.getPort() + "/user"
+        //        + "/queryUserByIds?userIds=" + JsonUtils.objectToJson(userIds);
+
+        // 硬编码服务地址
+        //  String getUserInfoUrl = "http://user.imoocnews.com:8003/user/queryUserByIds?userIds=" + JsonUtils.objectToJson(userIds);
         ResponseEntity<GraceJSONResult> responseEntity = restTemplate.getForEntity(getUserInfoUrl, GraceJSONResult.class);
         GraceJSONResult responseBody = responseEntity.getBody();
 

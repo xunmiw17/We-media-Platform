@@ -83,3 +83,21 @@ freemarker:
   html:
     target: /Users/wuxunmin/IdeaProjects/freemarker_hml
     article: /Users/wuxunmin/Downloads/apache-tomcat-9.0.60/webapps/imooc-news/portal/a
+
+############################################################
+#
+# Eureka client配置信息
+#
+############################################################
+eureka:
+  server:
+    hostname: localhost
+    port: 7001
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://eureka-cluster-7002:7002/eureka/,http://eureka-cluster-7003:7003/eureka/,http://eureka-cluster-7004:7004/eureka/    # Eureka集群地址
+  instance:
+    lease-renewal-interval-in-seconds: 3
+    lease-expiration-duration-in-seconds: 5

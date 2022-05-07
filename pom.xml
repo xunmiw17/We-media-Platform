@@ -17,6 +17,7 @@
         <module>xunmiwe-news-service-article</module>
         <module>xunmiwe-news-service-article-html</module>
         <module>springcloud-eureka</module>
+        <module>springcloud-eureka-cluster</module>
     </modules>
 
     <!--

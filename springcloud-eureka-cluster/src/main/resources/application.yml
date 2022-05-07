@@ -1,11 +1,11 @@
 ############################################################
 #
-# Eureka注册中心
-# web访问端口号  约定：7001
+# Eureka集群的注册中心
+# web访问端口号  约定：7002~7004
 #
 ############################################################
 server:
-  port: 7001
+  port: ${port:7002}
   tomcat:
     uri-encoding: UTF-8
 
@@ -16,7 +16,7 @@ server:
 ############################################################
 spring:
   application:
-    name: springcloud-eureka
+    name: springcloud-eureka-cluster
 
 ############################################################
 #
@@ -25,12 +25,16 @@ spring:
 ############################################################
 eureka:
   instance:
-    hostname: localhost       # Eureka实例的hostname
+    # 集群中的每个Eureka名字都是唯一的
+    hostname: eureka-cluster-${server.port}
+  node2-port: ${port2:7003}
+  node3-port: ${port3:7004}
   client:
-    register-with-eureka: false   # 是否将此服务注册到Eureka
-    fetch-registry: false         # 是否从Eureka拉取服务
+#    register-with-eureka: false   # 是否将此服务注册到Eureka
+#    fetch-registry: false         # 是否从Eureka拉取服务
+    # 高可用集群配置多个地址
     service-url:
-      defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/      # 单实例Eureka服务地址
+      defaultZone: http://eureka-cluster-${eureka.node2-port}:${eureka.node2-port}/eureka/,http://eureka-cluster-${eureka.node3-port}:${eureka.node3-port}/eureka/
   server:
     enable-self-preservation: false
     eviction-interval-timer-in-ms: 5000

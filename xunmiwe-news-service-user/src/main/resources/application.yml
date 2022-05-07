@@ -62,3 +62,19 @@ mapper:
 pagehelper:
   helperDialect: mysql
   supportMethodsArguments: true
+
+############################################################
+#
+# Eureka client配置信息
+#
+############################################################
+eureka:
+  server:
+    hostname: localhost
+    port: 7001
+  client:
+    register-with-eureka: true    # 将该服务注册到Eureka
+    fetch-registry: true          # 从Eureka拉取服务
+    service-url:
+#      defaultZone: http://${eureka.server.hostname}:${eureka.server.port}/eureka/    # Eureka注册中心的服务地址
+      defaultZone: http://eureka-cluster-7002:7002/eureka/,http://eureka-cluster-7003:7003/eureka/,http://eureka-cluster-7004:7004/eureka/    # Eureka集群地址
