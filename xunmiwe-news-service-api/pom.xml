@@ -36,6 +36,11 @@
             <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.springframework.retry</groupId>
+            <artifactId>spring-retry</artifactId>
+        </dependency>
+
         <!-- Spring Framework的Security包 -->
         <dependency>
             <groupId>org.springframework.cloud</groupId>

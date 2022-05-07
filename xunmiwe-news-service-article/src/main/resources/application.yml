@@ -101,3 +101,10 @@ eureka:
   instance:
     lease-renewal-interval-in-seconds: 3
     lease-expiration-duration-in-seconds: 5
+
+ribbon:
+  ConnectTimeout: 5000    # 请求微服务时创建连接的超时时间（ms）
+  ReadTimeout: 5000       # 连接完成后，调用接口的超时时间
+  MaxAutoRetries: 1       # 最大重试次数
+  MaxAutoRetriesNextServer: 2   # 一台实例重试次数耗尽，切换到下一个实例调用接口的最大重试次数
+
