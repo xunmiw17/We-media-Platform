@@ -1,6 +1,5 @@
 package com.xunmiw.api;
 
-import com.xunmiw.api.controller.user.UserControllerApi;
 import com.xunmiw.pojo.Category;
 import com.xunmiw.utils.JsonUtils;
 import com.xunmiw.utils.RedisOperator;

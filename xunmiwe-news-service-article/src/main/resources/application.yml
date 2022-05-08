@@ -108,3 +108,14 @@ ribbon:
   MaxAutoRetries: 1       # 最大重试次数
   MaxAutoRetriesNextServer: 2   # 一台实例重试次数耗尽，切换到下一个实例调用接口的最大重试次数
 
+logging:
+  level:
+    com.xunmiw.api.controller.user.UserControllerApi: debug
+
+# 配置feign日志打印
+feign:
+  client:
+    config:
+      # 配置服务提供方的名称
+      service-user:
+        loggerLevel: FULL
