@@ -4,7 +4,6 @@ import com.xunmiw.api.BaseController;
 import com.xunmiw.api.controller.article.ArticlePortalControllerApi;
 import com.xunmiw.api.controller.user.UserControllerApi;
 import com.xunmiw.article.service.ArticlePortalService;
-import com.xunmiw.exception.GraceException;
 import com.xunmiw.grace.result.GraceJSONResult;
 import com.xunmiw.grace.result.ResponseStatusEnum;
 import com.xunmiw.pojo.Article;
@@ -80,7 +79,9 @@ public class ArticlePortalController extends BaseController implements ArticlePo
         Set<String> set = new HashSet<>();
         set.add(articleDetailVO.getPublishUserId());
         List<AppUserVO> publisherList = getUserList(set);
-        articleDetailVO.setPublishUserName(publisherList.get(0).getNickname());
+        if (!publisherList.isEmpty()) {
+            articleDetailVO.setPublishUserName(publisherList.get(0).getNickname());
+        }
 
         String readCountStr = redisOperator.get(REDIS_ARTICLE_READ_COUNT + ":" + articleId);
         if (StringUtils.isNotBlank(readCountStr))
@@ -182,12 +183,14 @@ public class ArticlePortalController extends BaseController implements ArticlePo
         // ResponseEntity<GraceJSONResult> responseEntity = restTemplate.getForEntity(getUserInfoUrl, GraceJSONResult.class);
         // GraceJSONResult responseBody = responseEntity.getBody();
 
+        List<AppUserVO> users = null;
         // 注意这里使用equals方法进行两个Integer的比较，如果使用==，即使Integer的值相同，但Integer的地址不同，比较结果仍然为false
-        if (!responseBody.getStatus().equals(ResponseStatusEnum.SUCCESS.status())) {
-            GraceException.display(ResponseStatusEnum.SYSTEM_ERROR);
+        if (responseBody.getStatus().equals(ResponseStatusEnum.SUCCESS.status())) {
+            String usersJson = JsonUtils.objectToJson(responseBody.getData());
+            users = JsonUtils.jsonToList(usersJson, AppUserVO.class);
+        } else {
+            users = new ArrayList<>();
         }
-        String usersJson = JsonUtils.objectToJson(responseBody.getData());
-        List<AppUserVO> users = JsonUtils.jsonToList(usersJson, AppUserVO.class);
         return users;
     }
 }

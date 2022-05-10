@@ -1,5 +1,7 @@
 package com.xunmiw.user.controller;
 
+import com.netflix.hystrix.contrib.javanica.annotation.DefaultProperties;
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import com.xunmiw.api.BaseController;
 import com.xunmiw.api.controller.user.UserControllerApi;
 import com.xunmiw.grace.result.GraceJSONResult;
@@ -15,7 +17,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -23,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RestController
+@DefaultProperties(defaultFallback = "defaultFallback")
 public class UserController extends BaseController implements UserControllerApi {
 
     final static Logger logger = LoggerFactory.getLogger(UserController.class);
@@ -32,6 +34,11 @@ public class UserController extends BaseController implements UserControllerApi 
 
     @Value("${server.port}")
     private String currPort;
+
+    public GraceJSONResult defaultFallback() {
+        System.out.println("全局降级");
+        return GraceJSONResult.errorCustom(ResponseStatusEnum.SYSTEM_ERROR_GLOBAL);
+    }
 
     @Override
     public GraceJSONResult getUserInfo(String userId) {
@@ -73,7 +80,11 @@ public class UserController extends BaseController implements UserControllerApi 
     }
 
     @Override
+    @HystrixCommand//(fallbackMethod = "queryUserByIdsFallback")
     public GraceJSONResult queryUserByIds(String userIds) {
+
+        // int a = 1 / 0;
+        
         System.out.println("====================================================" + currPort);
         if (StringUtils.isBlank(userIds)) {
             return GraceJSONResult.errorCustom(ResponseStatusEnum.USER_NOT_EXIST_ERROR);
@@ -82,6 +93,28 @@ public class UserController extends BaseController implements UserControllerApi 
         List<String> userIdList = JsonUtils.jsonToList(userIds, String.class);
         for (String userId : userIdList) {
             AppUserVO appUserVO = getBasicUserInfo(userId);
+            publishers.add(appUserVO);
+        }
+        return GraceJSONResult.ok(publishers);
+    }
+
+    /**
+     * Fallback Method，构建空对象并返回
+     * @param userIds
+     * @return
+     */
+    public GraceJSONResult queryUserByIdsFallback(String userIds) {
+
+        System.out.println("进入降级方法==================================================");
+        System.out.println("====================================================" + currPort);
+        if (StringUtils.isBlank(userIds)) {
+            return GraceJSONResult.errorCustom(ResponseStatusEnum.USER_NOT_EXIST_ERROR);
+        }
+        List<AppUserVO> publishers = new ArrayList<>();
+        List<String> userIdList = JsonUtils.jsonToList(userIds, String.class);
+        for (String userId : userIdList) {
+            // 构建空对象，返回
+            AppUserVO appUserVO = new AppUserVO();
             publishers.add(appUserVO);
         }
         return GraceJSONResult.ok(publishers);

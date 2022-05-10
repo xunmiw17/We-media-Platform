@@ -78,3 +78,12 @@ eureka:
     service-url:
 #      defaultZone: http://${eureka.server.hostname}:${eureka.server.port}/eureka/    # Eureka注册中心的服务地址
       defaultZone: http://eureka-cluster-7002:7002/eureka/,http://eureka-cluster-7003:7003/eureka/,http://eureka-cluster-7004:7004/eureka/    # Eureka集群地址
+
+  # 配置Hystrix
+  hystrix:
+    command:
+      default:
+        execution:
+          isolation:
+            thread:
+              timeoutInMilliseconds: 5000     # 设置Hystrix超时时间，超过5s触发降级
