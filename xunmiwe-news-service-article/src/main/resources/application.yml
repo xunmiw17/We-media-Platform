@@ -119,3 +119,5 @@ feign:
       # 配置服务提供方的名称
       service-user:
         loggerLevel: FULL
+  hystrix:
+    enabled: true   # 打开feign客户端的内置hystrix

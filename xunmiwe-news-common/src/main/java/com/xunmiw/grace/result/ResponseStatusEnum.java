@@ -70,7 +70,8 @@ public enum ResponseStatusEnum {
     SYSTEM_ERROR(555, false, "系统繁忙，请稍后再试！"),
     SYSTEM_OPERATION_ERROR(556, false, "操作失败，请重试或联系管理员"),
     SYSTEM_RESPONSE_NO_INFO(557, false, ""),
-    SYSTEM_ERROR_GLOBAL(558, false, "全局降级：系统繁忙，请稍后再试！");
+    SYSTEM_ERROR_GLOBAL(558, false, "全局降级：系统繁忙，请稍后再试！"),
+    SYSTEM_ERROR_FEIGN(559, false, "客户端降级：系统繁忙，请稍后再试！");
 
 
     // 响应业务状态
