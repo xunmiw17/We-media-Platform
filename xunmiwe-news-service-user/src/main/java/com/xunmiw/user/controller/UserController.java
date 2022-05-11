@@ -93,10 +93,10 @@ public class UserController extends BaseController implements UserControllerApi 
         List<String> userIdList = JsonUtils.jsonToList(userIds, String.class);
 
         // 仅用于dev测试，硬编码动态判断抛出异常
-        if (userIdList.size() > 1) {
-            System.out.println("出现异常");
-            throw new RuntimeException("出现异常");
-        }
+        // if (userIdList.size() > 1) {
+        //     System.out.println("出现异常");
+        //     throw new RuntimeException("出现异常");
+        // }
         for (String userId : userIdList) {
             AppUserVO appUserVO = getBasicUserInfo(userId);
             publishers.add(appUserVO);
