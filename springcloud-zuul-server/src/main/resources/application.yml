@@ -17,6 +17,10 @@ server:
 spring:
   application:
     name: springcloud-zuul-server
+  redis:
+    database: 0
+    host: 127.0.0.1
+    port: 6379
 
 eureka:
   client:
@@ -35,3 +39,9 @@ zuul:
 #      url: http://10.18.185.191:8001     # 请求转发地址（文章微服务地址）
       service-id: service-article         # 请求转发的微服务实例id
   prefix: /api                            # 请求前缀
+
+# ip请求限制的参数配置
+blackIp:
+  maxContinuousRequest: ${count:10}                # ip最大连续请求的次数
+  requestInterval: ${interval:10}                  # ip判断的时间间隔，单位s
+  limitTime: ${time:15}                            # 限制的时间，单位s
