@@ -1,0 +1,31 @@
+############################################################
+#
+# 配置中心服务
+# web访问端口号  约定：7080
+#
+############################################################
+server:
+  port: 7080
+  tomcat:
+    uri-encoding: UTF-8
+
+############################################################
+#
+# 配置项目信息
+#
+############################################################
+spring:
+  application:
+    name: springcloud-config-server
+  cloud:
+    config:
+      server:
+        git:
+          uri: https://github.com/xunmiw17/xunmiwe-news-config.git
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://eureka-cluster-7002:7002/eureka, http://eureka-cluster-7003:7003/eureka, http://eureka-cluster-7004:7004/eureka

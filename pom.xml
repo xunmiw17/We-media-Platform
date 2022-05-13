@@ -19,6 +19,7 @@
         <module>springcloud-eureka</module>
         <module>springcloud-eureka-cluster</module>
         <module>springcloud-zuul-server</module>
+        <module>springcloud-config-server</module>
     </modules>
 
     <!--
@@ -44,6 +45,7 @@
         <pagehelper-spring-boot-starter.version>1.2.12</pagehelper-spring-boot-starter.version>
 
         <springboot-freemarker.version>2.2.5.RELEASE</springboot-freemarker.version>
+        <springcloud-config-server.version>2.2.2.RELEASE</springcloud-config-server.version>
 
         <okhttp.version>4.2.2</okhttp.version>
         <jackson.version>2.10.2</jackson.version>
@@ -75,6 +77,12 @@
                 <version>Hoxton.SR3</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-config-server</artifactId>
+                <version>${springcloud-config-server.version}</version>
             </dependency>
 
             <!-- 引入 mongodb 依赖 -->

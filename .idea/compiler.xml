@@ -7,16 +7,17 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="xunmiwe-news-common" />
+        <module name="mybatis-generator-database" />
+        <module name="xunmiwe-news-model" />
+        <module name="springcloud-config-server" />
         <module name="xunmiwe-news-service-article" />
         <module name="xunmiwe-news-service-files" />
         <module name="xunmiwe-news-service-admin" />
         <module name="springcloud-eureka" />
         <module name="springcloud-eureka-cluster" />
-        <module name="mybatis-generator-database" />
         <module name="springcloud-zuul-server" />
         <module name="xunmiwe-news-service-article-html" />
         <module name="xunmiwe-news-service-user" />
-        <module name="xunmiwe-news-model" />
         <module name="xunmiwe-news-service-api" />
       </profile>
     </annotationProcessing>
@@ -26,6 +27,7 @@
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="springcloud-config-server" options="-parameters" />
       <module name="springcloud-eureka" options="-parameters" />
       <module name="springcloud-eureka-cluster" options="-parameters" />
       <module name="springcloud-zuul-server" options="-parameters" />

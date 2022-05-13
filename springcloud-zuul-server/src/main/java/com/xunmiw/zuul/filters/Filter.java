@@ -5,7 +5,7 @@ import com.netflix.zuul.exception.ZuulException;
 import org.springframework.stereotype.Component;
 
 /**
- * 构建Zuul自定义过滤器
+ * 构建Zuul自定义过滤器 (玩具类)
  */
 @Component
 public class Filter extends ZuulFilter {
