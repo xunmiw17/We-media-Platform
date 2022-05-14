@@ -1,0 +1,49 @@
+############################################################
+#
+# Zuul网关
+# web访问端口号  约定：7070
+#
+############################################################
+server:
+  port: 7070
+  tomcat:
+    uri-encoding: UTF-8
+
+############################################################
+#
+# 配置项目信息
+#
+############################################################
+spring:
+  application:
+    name: springcloud-zuul-server
+  redis:
+    database: 0
+    host: 127.0.0.1
+    port: 6379
+  cloud:
+    config:
+      label: main     # 分支
+      name: zuul      # Github上配置文件前缀名
+      profile: dev    # Github上配置文件环境 (dev/prod/...)
+      discovery:      # 服务端地址
+        enabled: true
+        service-id: springcloud-config-server
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://eureka-cluster-7002:7002/eureka, http://eureka-cluster-7003:7003/eureka, http://eureka-cluster-7004:7004/eureka
+
+
+# 路由规则: http://[网关host]:[网关端口]/[prefix]/[path]/[请求地址路径]
+zuul:
+  routes:
+#   service-article: /service-article/**  # 简化版配置
+    service-article:                      # 配置指定的微服务实例id
+      path: /service-article/**           # 匹配请求路径，表示前缀为service-article的任意路径
+#      url: http://10.18.185.191:8001     # 请求转发地址（文章微服务地址）
+      service-id: service-article         # 请求转发的微服务实例id
+  prefix: /api                            # 请求前缀

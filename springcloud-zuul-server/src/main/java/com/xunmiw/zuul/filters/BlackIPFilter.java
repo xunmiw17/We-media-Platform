@@ -71,6 +71,7 @@ public class BlackIPFilter extends ZuulFilter {
      */
     @Override
     public Object run() throws ZuulException {
+
         // 获得RequestContext上下文对象，以获得ip地址
         RequestContext context = RequestContext.getCurrentContext();
         HttpServletRequest request = context.getRequest();
