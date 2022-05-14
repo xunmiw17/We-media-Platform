@@ -47,3 +47,10 @@ zuul:
 #      url: http://10.18.185.191:8001     # 请求转发地址（文章微服务地址）
       service-id: service-article         # 请求转发的微服务实例id
   prefix: /api                            # 请求前缀
+
+# 配置动态刷新Git配置的路径终端请求地址
+management:
+  endpoints:
+    web:
+      exposure:
+        include: refresh      # 访问请求的路径地址（自定义名称）

@@ -10,6 +10,7 @@ import com.xunmiw.utils.JsonUtils;
 import com.xunmiw.utils.RedisOperator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 
@@ -19,6 +20,7 @@ import javax.servlet.http.HttpServletRequest;
  * 构建Zuul自定义过滤器
  */
 @Component
+@RefreshScope
 public class BlackIPFilter extends ZuulFilter {
 
     @Value("${blackIp.maxContinuousRequest}")
@@ -71,6 +73,10 @@ public class BlackIPFilter extends ZuulFilter {
      */
     @Override
     public Object run() throws ZuulException {
+
+        System.out.println(maxContinuousRequest);
+        System.out.println(requestInterval);
+        System.out.println(limitTime);
 
         // 获得RequestContext上下文对象，以获得ip地址
         RequestContext context = RequestContext.getCurrentContext();
