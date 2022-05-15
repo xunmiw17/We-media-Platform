@@ -22,6 +22,12 @@ spring:
       server:
         git:
           uri: https://github.com/xunmiw17/xunmiwe-news-config.git
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: xunmiw
+    password: la178944
+    virtual-host: xunmiwe-news
 
 eureka:
   client:
@@ -29,3 +35,9 @@ eureka:
     fetch-registry: true
     service-url:
       defaultZone: http://eureka-cluster-7002:7002/eureka, http://eureka-cluster-7003:7003/eureka, http://eureka-cluster-7004:7004/eureka
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"

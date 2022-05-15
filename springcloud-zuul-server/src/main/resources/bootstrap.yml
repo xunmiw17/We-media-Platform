@@ -29,6 +29,12 @@ spring:
       discovery:      # 服务端地址
         enabled: true
         service-id: springcloud-config-server
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: xunmiw
+    password: la178944
+    virtual-host: xunmiwe-news
 
 eureka:
   client:
