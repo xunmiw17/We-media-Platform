@@ -52,6 +52,13 @@ spring:
         mqInput:                          # 定义消费者的通道
           destination: streamExchange
           group: girls
+  zipkin:
+    base-url: http://10.18.185.191:9411/
+    sender:
+      type: web
+    sleuth:
+      sampler:
+        probability: 1
 
 ############################################################
 #

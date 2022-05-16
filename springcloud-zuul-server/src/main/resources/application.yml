@@ -21,6 +21,13 @@ spring:
     database: 0
     host: 127.0.0.1
     port: 6379
+  zipkin:
+    base-url: http://10.18.185.191:9411/   # 数据被发送到这个服务地址（Zipkin地址）
+    sender:
+      type: web   # 以web http形式进行数据传输
+  sleuth:
+    sampler:
+      probability: 1   # 数据采样比例
 
 eureka:
   client:
