@@ -1,6 +1,7 @@
 package com.xunmiw.article.controller;
 
 import com.xunmiw.api.config.RabbitMQConfig;
+import com.xunmiw.article.stream.StreamService;
 import com.xunmiw.grace.result.GraceJSONResult;
 import org.springframework.amqp.AmqpException;
 import org.springframework.amqp.core.Message;
@@ -20,6 +21,9 @@ public class HelloController{
 
     @Autowired
     private RabbitTemplate rabbitTemplate;
+
+    @Autowired
+    private StreamService streamService;
 
     @GetMapping("hello")
     public Object hello() {
@@ -44,5 +48,14 @@ public class HelloController{
         rabbitTemplate.convertAndSend(RabbitMQConfig.ARTICLE_DELAYED_PUBLISH_EXCHANGE, "delay.article", "延迟消息", messagePostProcessor);
         System.out.println("发送消息：" + new Date());
         return GraceJSONResult.ok();
+    }
+
+    @GetMapping("stream")
+    public Object stream() {
+        streamService.publish();
+        for (int i = 0; i < 10; i++) {
+            streamService.eat("My" + i);
+        }
+        return "stream!";
     }
 }

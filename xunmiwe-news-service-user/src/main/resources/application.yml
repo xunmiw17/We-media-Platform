@@ -38,6 +38,20 @@ spring:
   jackson:
     date-format: yyyy-MM-dd HH:mm:ss
     time-zone: GMT+8
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: xunmiw
+    password: la178944
+    virtual-host: xunmiwe-news
+  cloud:
+    stream:
+      bindings:                           # 绑定通道和交换机
+        mqOutput:                         # 定义生产者的通道
+          destination: streamExchange     # 自定义交换机名称
+        mqInput:                          # 定义消费者的通道
+          destination: streamExchange
+          group: girls
 
 ############################################################
 #

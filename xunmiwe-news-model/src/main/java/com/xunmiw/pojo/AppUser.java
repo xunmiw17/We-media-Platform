@@ -349,4 +349,12 @@ public class AppUser {
     public void setUpdatedTime(Date updatedTime) {
         this.updatedTime = updatedTime;
     }
+
+    @Override
+    public String toString() {
+        return "AppUser{" +
+                "id='" + id + '\'' +
+                ", nickname='" + nickname + '\'' +
+                '}';
+    }
 }
