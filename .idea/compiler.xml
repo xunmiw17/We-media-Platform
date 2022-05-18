@@ -18,6 +18,7 @@
         <module name="springcloud-zuul-server" />
         <module name="xunmiwe-news-service-article-html" />
         <module name="xunmiwe-news-service-user" />
+        <module name="xunmiwe-news-service-search" />
         <module name="xunmiwe-news-service-api" />
       </profile>
     </annotationProcessing>
@@ -39,6 +40,7 @@
       <module name="xunmiwe-news-service-article" options="-parameters" />
       <module name="xunmiwe-news-service-article-html" options="-parameters" />
       <module name="xunmiwe-news-service-files" options="-parameters" />
+      <module name="xunmiwe-news-service-search" options="-parameters" />
       <module name="xunmiwe-news-service-user" options="-parameters" />
     </option>
   </component>
