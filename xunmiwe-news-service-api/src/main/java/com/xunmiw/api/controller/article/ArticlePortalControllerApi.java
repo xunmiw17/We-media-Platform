@@ -14,6 +14,13 @@ import javax.servlet.http.HttpServletRequest;
 @RequestMapping("portal/article")
 public interface ArticlePortalControllerApi {
 
+    @ApiOperation(value = "用户portal通过ES根据类别分页查询文章列表", notes = "用户portal通过ES根据类别分页查询文章列表", httpMethod = "GET")
+    @GetMapping("es/list")
+    public GraceJSONResult queryUserPortalArticlesES(@RequestParam String keyword,
+                                                   @RequestParam Integer category,
+                                                   @RequestParam Integer page,
+                                                   @RequestParam Integer pageSize);
+
     @ApiOperation(value = "用户portal根据类别分页查询文章列表", notes = "用户portal根据类别分页查询文章列表", httpMethod = "GET")
     @GetMapping("list")
     public GraceJSONResult queryUserPortalArticles(@RequestParam String keyword,

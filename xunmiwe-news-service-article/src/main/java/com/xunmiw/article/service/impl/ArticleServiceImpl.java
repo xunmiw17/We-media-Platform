@@ -14,6 +14,7 @@ import com.xunmiw.exception.GraceException;
 import com.xunmiw.grace.result.ResponseStatusEnum;
 import com.xunmiw.pojo.Article;
 import com.xunmiw.pojo.bo.ArticleBO;
+import com.xunmiw.pojo.eo.ArticleEO;
 import com.xunmiw.utils.PagedGridResult;
 import com.xunmiw.utils.extend.AliTextReviewUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -26,6 +27,9 @@ import org.springframework.amqp.core.MessagePostProcessor;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
+import org.springframework.data.elasticsearch.core.query.IndexQuery;
+import org.springframework.data.elasticsearch.core.query.IndexQueryBuilder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tk.mybatis.mapper.entity.Example;
@@ -53,6 +57,9 @@ public class ArticleServiceImpl extends BaseService implements ArticleService {
 
     @Autowired
     private RabbitTemplate rabbitTemplate;
+
+    @Autowired
+    private ElasticsearchTemplate elasticsearchTemplate;
 
     @Override
     @Transactional
@@ -219,5 +226,29 @@ public class ArticleServiceImpl extends BaseService implements ArticleService {
         String fileId = target.getMongoFileId();
         ObjectId objectId = new ObjectId(fileId);
         gridFSBucket.delete(objectId);
+    }
+
+    @Override
+    public void storeES(String articleId) {
+        Article articleExp = new Article();
+        articleExp.setId(articleId);
+
+        Article article = articleMapper.selectOne(articleExp);
+        if (article.getIsAppoint() == ArticleAppointType.IMMEDIATELY.type) {
+            ArticleEO articleEO = new ArticleEO();
+            BeanUtils.copyProperties(article, articleEO);
+
+            IndexQuery query = new IndexQueryBuilder()
+                    .withObject(articleEO)
+                    .build();
+            elasticsearchTemplate.index(query);
+        } else {
+            // TODO: Hand the task to MQ
+        }
+    }
+
+    @Override
+    public void deleteArticleFromES(String articleId) {
+        elasticsearchTemplate.delete(ArticleEO.class, articleId);
     }
 }

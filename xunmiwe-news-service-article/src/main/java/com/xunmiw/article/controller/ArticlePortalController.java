@@ -7,6 +7,7 @@ import com.xunmiw.article.service.ArticlePortalService;
 import com.xunmiw.grace.result.GraceJSONResult;
 import com.xunmiw.grace.result.ResponseStatusEnum;
 import com.xunmiw.pojo.Article;
+import com.xunmiw.pojo.eo.ArticleEO;
 import com.xunmiw.pojo.vo.AppUserVO;
 import com.xunmiw.pojo.vo.ArticleDetailVO;
 import com.xunmiw.pojo.vo.IndexArticleVO;
@@ -14,8 +15,15 @@ import com.xunmiw.utils.IPUtil;
 import com.xunmiw.utils.JsonUtils;
 import com.xunmiw.utils.PagedGridResult;
 import org.apache.commons.lang3.StringUtils;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
+import org.springframework.data.elasticsearch.core.aggregation.AggregatedPage;
+import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
+import org.springframework.data.elasticsearch.core.query.SearchQuery;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
@@ -32,6 +40,47 @@ public class ArticlePortalController extends BaseController implements ArticlePo
 
     @Autowired
     private UserControllerApi userControllerApi;
+
+    @Autowired
+    private ElasticsearchTemplate elasticsearchTemplate;
+
+    @Override
+    public GraceJSONResult queryUserPortalArticlesES(String keyword, Integer category, Integer page, Integer pageSize) {
+        if (page == null)
+            page = DEFAULT_START_PAGE;
+        if (pageSize == null)
+            pageSize = DEFAULT_PAGE_SIZE;
+        // ES的页码从0开始计算，所以page需要 -1
+        page--;
+
+        Pageable pageable = PageRequest.of(page, pageSize);
+        SearchQuery query = null;
+        if (StringUtils.isBlank(keyword) && category == null) {
+            query = new NativeSearchQueryBuilder()
+                    .withQuery(QueryBuilders.matchAllQuery())
+                    .withPageable(pageable)
+                    .build();
+        } else if (StringUtils.isBlank(keyword) && category != null) {
+            query = new NativeSearchQueryBuilder()
+                    .withQuery(QueryBuilders.termQuery("categoryId", category))
+                    .withPageable(pageable)
+                    .build();
+        } else if (StringUtils.isNotBlank(keyword) && category == null) {
+            query = new NativeSearchQueryBuilder()
+                    .withQuery(QueryBuilders.matchQuery("title", keyword))
+                    .withPageable(pageable)
+                    .build();
+        } else {
+            // TODO: 支持keyword和category同时作为条件的查询
+        }
+
+        AggregatedPage<ArticleEO> pagedList = elasticsearchTemplate.queryForPage(query, ArticleEO.class);
+        List<ArticleEO> result = pagedList.getContent();
+        for (ArticleEO articleEO : result) {
+            System.out.println(articleEO);
+        }
+        return GraceJSONResult.ok(result);
+    }
 
     @Override
     public GraceJSONResult queryUserPortalArticles(String keyword, Integer category, Integer page, Integer pageSize) {

@@ -42,6 +42,9 @@ spring:
     mongodb:
       uri: mongodb://root:root@10.18.185.191:27017
       database: xunmiwe-news
+    elasticsearch:
+      cluster-name: xunmiwe-elasticsearch
+      cluster-nodes: 10.18.185.191:9300
   freemarker:
     charset: UTF-8
     content-type: text/html

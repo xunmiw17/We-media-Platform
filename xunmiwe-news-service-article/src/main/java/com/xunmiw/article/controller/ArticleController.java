@@ -103,6 +103,7 @@ public class ArticleController extends BaseController implements ArticleControll
         if (passOrNot == YesOrNo.YES.type) {
             // 审核成功
             articleService.updateArticleStatus(articleId, ArticleReviewStatus.SUCCESS.type);
+            articleService.storeES(articleId);
         } else if (passOrNot == YesOrNo.NO.type) {
             // 审核失败
             articleService.updateArticleStatus(articleId, ArticleReviewStatus.FAILED.type);
@@ -232,6 +233,8 @@ public class ArticleController extends BaseController implements ArticleControll
         // 从Tomcat容器中删除文章HTML静态页面
         // deleteArticleHTML(articleId);
 
+        articleService.deleteArticleFromES(articleId);
+
         // 发布消息，让article-html服务删除文章HTML静态页面
         publishMessageDeletingHTML(articleId);
         return GraceJSONResult.ok();
@@ -254,6 +257,7 @@ public class ArticleController extends BaseController implements ArticleControll
     @Override
     public GraceJSONResult withdraw(String userId, String articleId) {
         articleService.updateArticleStatus(articleId, ArticleReviewStatus.WITHDRAW.type);
+        articleService.deleteArticleFromES(articleId);
         return GraceJSONResult.ok();
     }
 }

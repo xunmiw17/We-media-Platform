@@ -17,3 +17,7 @@ server:
 spring:
   application:
     name: service-search
+  data:
+    elasticsearch:
+      cluster-name: xunmiwe-elasticsearch
+      cluster-nodes: 10.18.185.191:9300

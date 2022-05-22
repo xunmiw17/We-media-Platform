@@ -32,7 +32,7 @@
       <module name="springcloud-eureka" options="-parameters" />
       <module name="springcloud-eureka-cluster" options="-parameters" />
       <module name="springcloud-zuul-server" options="-parameters" />
-      <module name="xunmiwe-news" options="" />
+      <module name="xunmiwe-news" options="-parameters" />
       <module name="xunmiwe-news-common" options="-parameters" />
       <module name="xunmiwe-news-model" options="-parameters" />
       <module name="xunmiwe-news-service-admin" options="-parameters" />

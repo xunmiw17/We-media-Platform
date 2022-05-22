@@ -78,4 +78,16 @@ public interface ArticleService {
      * @param articleId
      */
     void deleteArticleFromGridFS(String articleId);
+
+    /**
+     * 将文章数据存储到Elasticsearch
+     * @param articleId
+     */
+    void storeES(String articleId);
+
+    /**
+     * 从Elasticsearch中删除文章
+     * @param articleId
+     */
+    void deleteArticleFromES(String articleId);
 }
