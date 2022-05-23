@@ -15,22 +15,27 @@ import com.xunmiw.utils.IPUtil;
 import com.xunmiw.utils.JsonUtils;
 import com.xunmiw.utils.PagedGridResult;
 import org.apache.commons.lang3.StringUtils;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.common.text.Text;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.SearchHits;
+import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
+import org.elasticsearch.search.fetch.subphase.highlight.HighlightField;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
+import org.springframework.data.elasticsearch.core.SearchResultMapper;
 import org.springframework.data.elasticsearch.core.aggregation.AggregatedPage;
+import org.springframework.data.elasticsearch.core.aggregation.impl.AggregatedPageImpl;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
 import org.springframework.data.elasticsearch.core.query.SearchQuery;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @RestController
 public class ArticlePortalController extends BaseController implements ArticlePortalControllerApi {
@@ -55,26 +60,73 @@ public class ArticlePortalController extends BaseController implements ArticlePo
 
         Pageable pageable = PageRequest.of(page, pageSize);
         SearchQuery query = null;
+        AggregatedPage<ArticleEO> pagedList = null;
         if (StringUtils.isBlank(keyword) && category == null) {
             query = new NativeSearchQueryBuilder()
                     .withQuery(QueryBuilders.matchAllQuery())
                     .withPageable(pageable)
                     .build();
+            pagedList = elasticsearchTemplate.queryForPage(query, ArticleEO.class);
         } else if (StringUtils.isBlank(keyword) && category != null) {
             query = new NativeSearchQueryBuilder()
                     .withQuery(QueryBuilders.termQuery("categoryId", category))
                     .withPageable(pageable)
                     .build();
+            pagedList = elasticsearchTemplate.queryForPage(query, ArticleEO.class);
         } else if (StringUtils.isNotBlank(keyword) && category == null) {
+            String titleField = "title";
+            String preTag = "<font color='red'>";
+            String postTag = "</font>";
+            // Highlight the title field; if using Elasticsearch 7x instead of current 6.8.6, the code would be much simpler.
             query = new NativeSearchQueryBuilder()
-                    .withQuery(QueryBuilders.matchQuery("title", keyword))
+                    .withQuery(QueryBuilders.matchQuery(titleField, keyword))
+                    .withHighlightFields(new HighlightBuilder.Field(titleField)
+                            .preTags(preTag)
+                            .postTags(postTag))
                     .withPageable(pageable)
                     .build();
+            pagedList = elasticsearchTemplate.queryForPage(query, ArticleEO.class, new SearchResultMapper() {
+                @Override
+                public <T> AggregatedPage<T> mapResults(SearchResponse searchResponse, Class<T> aClass, Pageable pageable) {
+                    SearchHits hits = searchResponse.getHits();
+                    List<ArticleEO> highlightArticles = new ArrayList<>();
+                    for (SearchHit hit : hits) {
+                        HighlightField highlightField = hit.getHighlightFields().get("title");
+                        String title = highlightField.getFragments()[0].toString();
+
+                        // 获得其他字段信息数据，并且重新封装
+                        String articleId = (String) hit.getSourceAsMap().get("id");
+                        Integer categoryId = (Integer) hit.getSourceAsMap().get("categoryId");
+                        Integer articleType = (Integer) hit.getSourceAsMap().get("articleType");
+                        String articleCover = (String) hit.getSourceAsMap().get("articleCover");
+                        String publishUserId = (String) hit.getSourceAsMap().get("publishUserId");
+                        Long dateLong = (Long) hit.getSourceAsMap().get("publishTime");
+                        Date publishTime = new Date(dateLong);
+
+                        ArticleEO articleEO = new ArticleEO();
+                        articleEO.setId(articleId);
+                        articleEO.setCategoryId(categoryId);
+                        articleEO.setTitle(title);
+                        articleEO.setArticleType(articleType);
+                        articleEO.setArticleCover(articleCover);
+                        articleEO.setPublishUserId(publishUserId);
+                        articleEO.setPublishTime(publishTime);
+
+                        highlightArticles.add(articleEO);
+                    }
+                    return new AggregatedPageImpl<>((List<T>) highlightArticles, pageable, searchResponse.getHits().totalHits);
+                }
+
+                @Override
+                public <T> T mapSearchHit(SearchHit searchHit, Class<T> aClass) {
+                    return null;
+                }
+            });
         } else {
             // TODO: 支持keyword和category同时作为条件的查询
+
         }
 
-        AggregatedPage<ArticleEO> pagedList = elasticsearchTemplate.queryForPage(query, ArticleEO.class);
         List<ArticleEO> result = pagedList.getContent();
         for (ArticleEO articleEO : result) {
             System.out.println(articleEO);
