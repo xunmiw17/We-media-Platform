@@ -16,7 +16,6 @@ import com.xunmiw.utils.JsonUtils;
 import com.xunmiw.utils.PagedGridResult;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.common.text.Text;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
@@ -127,10 +126,22 @@ public class ArticlePortalController extends BaseController implements ArticlePo
 
         }
 
-        List<ArticleEO> result = pagedList.getContent();
-        for (ArticleEO articleEO : result) {
-            System.out.println(articleEO);
+        // 重组文章列表，以约定方式 (PagedGridResult of list of articles) 返回给前端
+        List<ArticleEO> articleEOS = pagedList.getContent();
+        List<Article> articles = new ArrayList<>();
+        for (ArticleEO articleEO : articleEOS) {
+            Article article = new Article();
+            BeanUtils.copyProperties(articleEO, article);
+            articles.add(article);
         }
+
+        PagedGridResult result = new PagedGridResult();
+        result.setRows(articles);
+        result.setTotal(pagedList.getTotalPages());
+        result.setRecords(pagedList.getTotalElements());
+        result.setPage(page + 1);
+        result = incorporateUserInfoInArticles(result);
+
         return GraceJSONResult.ok(result);
     }
 

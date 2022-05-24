@@ -44,7 +44,8 @@ public class FansController extends BaseController implements FansControllerApi 
         if (pageSize == null)
             pageSize = DEFAULT_PAGE_SIZE;
 
-        PagedGridResult result = fansService.queryAll(writerId, page, pageSize);
+        // 从Elasticsearch中获取粉丝数据
+        PagedGridResult result = fansService.queryAllFromES(writerId, page, pageSize);
         return GraceJSONResult.ok(result);
     }
 
@@ -62,5 +63,11 @@ public class FansController extends BaseController implements FansControllerApi 
     public GraceJSONResult queryRatioByRegion(String writerId) {
         List<RegionRatioVO> result = fansService.queryFansRatioAndCountsByRegion(writerId);
         return GraceJSONResult.ok(result);
+    }
+
+    @Override
+    public GraceJSONResult forceUpdateFanInfo(String relationId, String fanId) {
+        fansService.forceUpdateFanInfo(relationId, fanId);
+        return GraceJSONResult.ok();
     }
 }
