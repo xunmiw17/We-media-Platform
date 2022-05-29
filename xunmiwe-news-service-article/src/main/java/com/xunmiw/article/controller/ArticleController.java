@@ -213,7 +213,7 @@ public class ArticleController extends BaseController implements ArticleControll
      * @return
      */
     private ArticleDetailVO getArticleDetail(String articleId) {
-        String articleDetailUrl = "http://www.imoocnews.com:8001/portal/article/detail?articleId=" + articleId;
+        String articleDetailUrl = "http://article.imoocnews.com:8001/portal/article/detail?articleId=" + articleId;
         ResponseEntity<GraceJSONResult> responseEntity = restTemplate.getForEntity(articleDetailUrl, GraceJSONResult.class);
         GraceJSONResult result = responseEntity.getBody();
         ArticleDetailVO articleDetailVO = null;

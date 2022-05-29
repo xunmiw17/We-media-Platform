@@ -85,4 +85,17 @@ public class ArticleEO {
     public void setPublishTime(Date publishTime) {
         this.publishTime = publishTime;
     }
+
+    @Override
+    public String toString() {
+        return "ArticleEO{" +
+                "id='" + id + '\'' +
+                ", title='" + title + '\'' +
+                ", categoryId=" + categoryId +
+                ", articleType=" + articleType +
+                ", articleCover='" + articleCover + '\'' +
+                ", publishUserId='" + publishUserId + '\'' +
+                ", publishTime=" + publishTime +
+                '}';
+    }
 }

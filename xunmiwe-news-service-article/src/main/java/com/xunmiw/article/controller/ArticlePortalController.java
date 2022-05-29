@@ -21,6 +21,8 @@ import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightField;
+import org.elasticsearch.search.sort.SortBuilders;
+import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -29,6 +31,7 @@ import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
 import org.springframework.data.elasticsearch.core.SearchResultMapper;
 import org.springframework.data.elasticsearch.core.aggregation.AggregatedPage;
 import org.springframework.data.elasticsearch.core.aggregation.impl.AggregatedPageImpl;
+import org.springframework.data.elasticsearch.core.query.GetQuery;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
 import org.springframework.data.elasticsearch.core.query.SearchQuery;
 import org.springframework.web.bind.annotation.RestController;
@@ -64,6 +67,7 @@ public class ArticlePortalController extends BaseController implements ArticlePo
             query = new NativeSearchQueryBuilder()
                     .withQuery(QueryBuilders.matchAllQuery())
                     .withPageable(pageable)
+                    .withSort(SortBuilders.fieldSort("publishTime").order(SortOrder.DESC))
                     .build();
             pagedList = elasticsearchTemplate.queryForPage(query, ArticleEO.class);
         } else if (StringUtils.isBlank(keyword) && category != null) {
@@ -161,7 +165,20 @@ public class ArticlePortalController extends BaseController implements ArticlePo
 
     @Override
     public GraceJSONResult queryHotArticleList() {
-        List<Article> articles = articlePortalService.queryHotArticleList();
+        // List<Article> articles = articlePortalService.queryHotArticleList();
+
+        // 从Redis中获取分值（阅读量）前五的文章
+        Set<String> articleIds = redisOperator.zrevrange(REDIS_HOT_ARTICLE, 0, 4);
+        // Elasticsearch根据ids查询热门文章
+        List<Article> articles = new ArrayList<>();
+        for (String articleId : articleIds) {
+            GetQuery query = new GetQuery();
+            query.setId(articleId);
+            ArticleEO articleEO = elasticsearchTemplate.queryForObject(query, ArticleEO.class);
+            Article article = new Article();
+            BeanUtils.copyProperties(articleEO, article);
+            articles.add(article);
+        }
         return GraceJSONResult.ok(articles);
     }
 
@@ -214,8 +231,10 @@ public class ArticlePortalController extends BaseController implements ArticlePo
         String userIP = IPUtil.getRequestIp(request);
         // 将userIP存入Redis，防止用户刷阅读量
         redisOperator.setnx(REDIS_ARTICLE_ALREADY_READ + ":" + articleId + ":" + userIP, userIP);
-
         redisOperator.increment(REDIS_ARTICLE_READ_COUNT + ":" + articleId, 1);
+
+        // 将阅读量作为文章score存入Zset，用于首页热闻展示阅读量排名
+        redisOperator.zincrby(REDIS_HOT_ARTICLE, articleId, 1);
         return GraceJSONResult.ok();
     }
 

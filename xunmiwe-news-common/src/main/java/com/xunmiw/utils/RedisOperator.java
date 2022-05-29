@@ -255,4 +255,36 @@ public class RedisOperator {
         return redisTemplate.opsForList().rightPush(key, value);
     }
 
+    /**
+     * Zset给指定member增加score
+     * @param key
+     * @param member
+     * @param incr
+     * @return
+     */
+    public double zincrby(String key, String member, double incr) {
+        return redisTemplate.opsForZSet().incrementScore(key, member, incr);
+    }
+
+    /**
+     * Zset将members升序排序
+     * @param key
+     * @param min
+     * @param max
+     * @return
+     */
+    public Set<String> zrange(String key, double min, double max) {
+        return redisTemplate.opsForZSet().rangeByScore(key, min, max);
+    }
+
+    /**
+     * Zset将members降序排序
+     * @param key
+     * @param min
+     * @param max
+     * @return
+     */
+    public Set<String> zrevrange(String key, double min, double max) {
+        return redisTemplate.opsForZSet().reverseRangeByScore(key, min, max);
+    }
 }
