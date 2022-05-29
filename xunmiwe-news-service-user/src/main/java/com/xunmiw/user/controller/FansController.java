@@ -51,17 +51,20 @@ public class FansController extends BaseController implements FansControllerApi 
 
     @Override
     public GraceJSONResult queryRatio(String writerId) {
-        Integer manCount = fansService.queryFansRatioAndCounts(writerId, Sex.man);
-        Integer womanCount = fansService.queryFansRatioAndCounts(writerId, Sex.woman);
-        FansCountVO fansCountVO = new FansCountVO();
-        fansCountVO.setManCounts(manCount);
-        fansCountVO.setWomanCounts(womanCount);
+        // Integer manCount = fansService.queryFansRatioAndCounts(writerId, Sex.man);
+        // Integer womanCount = fansService.queryFansRatioAndCounts(writerId, Sex.woman);
+        // FansCountVO fansCountVO = new FansCountVO();
+        // fansCountVO.setManCounts(manCount);
+        // fansCountVO.setWomanCounts(womanCount);
+
+        FansCountVO fansCountVO = fansService.queryFansRatioAndCountsFromES(writerId);
         return GraceJSONResult.ok(fansCountVO);
     }
 
     @Override
     public GraceJSONResult queryRatioByRegion(String writerId) {
-        List<RegionRatioVO> result = fansService.queryFansRatioAndCountsByRegion(writerId);
+        // List<RegionRatioVO> result = fansService.queryFansRatioAndCountsByRegion(writerId);
+        List<RegionRatioVO> result = fansService.queryFansRatioAndCountsByRegionFromES(writerId);
         return GraceJSONResult.ok(result);
     }
 

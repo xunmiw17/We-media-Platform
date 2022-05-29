@@ -3,6 +3,7 @@ package com.xunmiw.user.service;
 import com.xunmiw.enums.Sex;
 import com.xunmiw.grace.result.GraceJSONResult;
 import com.xunmiw.pojo.Fans;
+import com.xunmiw.pojo.vo.FansCountVO;
 import com.xunmiw.pojo.vo.RegionRatioVO;
 import com.xunmiw.utils.PagedGridResult;
 import io.swagger.annotations.ApiOperation;
@@ -61,11 +62,25 @@ public interface FansService {
     Integer queryFansRatioAndCounts(String writerId, Sex sex);
 
     /**
+     * 从Elasticsearch中查询男女粉丝数量/比例
+     * @param writerId
+     * @return
+     */
+    FansCountVO queryFansRatioAndCountsFromES(String writerId);
+
+    /**
      * 根据地域查询粉丝数量/比例
      * @param writerId
      * @return
      */
     List<RegionRatioVO> queryFansRatioAndCountsByRegion(String writerId);
+
+    /**
+     * 从Elasticsearch中根据地域查询粉丝数量/比例
+     * @param writerId
+     * @return
+     */
+    List<RegionRatioVO> queryFansRatioAndCountsByRegionFromES(String writerId);
 
     /**
      * 被动更新粉丝用户信息
