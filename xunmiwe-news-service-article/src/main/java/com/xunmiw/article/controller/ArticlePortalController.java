@@ -126,8 +126,57 @@ public class ArticlePortalController extends BaseController implements ArticlePo
                 }
             });
         } else {
-            // TODO: 支持keyword和category同时作为条件的查询
+            String titleField = "title";
+            String preTag = "<font color='red'>";
+            String postTag = "</font>";
+            // Highlight the title field; if using Elasticsearch 7x instead of current 6.8.6, the code would be much simpler.
+            query = new NativeSearchQueryBuilder()
+                    // .withQuery(QueryBuilders.matchQuery(titleField, keyword))
+                    .withQuery(QueryBuilders.boolQuery()
+                            .must(QueryBuilders.matchQuery(titleField, keyword))
+                            .must(QueryBuilders.termQuery("categoryId", category)))
+                    .withHighlightFields(new HighlightBuilder.Field(titleField)
+                            .preTags(preTag)
+                            .postTags(postTag))
+                    .withPageable(pageable)
+                    .build();
+            pagedList = elasticsearchTemplate.queryForPage(query, ArticleEO.class, new SearchResultMapper() {
+                @Override
+                public <T> AggregatedPage<T> mapResults(SearchResponse searchResponse, Class<T> aClass, Pageable pageable) {
+                    SearchHits hits = searchResponse.getHits();
+                    List<ArticleEO> highlightArticles = new ArrayList<>();
+                    for (SearchHit hit : hits) {
+                        HighlightField highlightField = hit.getHighlightFields().get("title");
+                        String title = highlightField.getFragments()[0].toString();
 
+                        // 获得其他字段信息数据，并且重新封装
+                        String articleId = (String) hit.getSourceAsMap().get("id");
+                        Integer categoryId = (Integer) hit.getSourceAsMap().get("categoryId");
+                        Integer articleType = (Integer) hit.getSourceAsMap().get("articleType");
+                        String articleCover = (String) hit.getSourceAsMap().get("articleCover");
+                        String publishUserId = (String) hit.getSourceAsMap().get("publishUserId");
+                        Long dateLong = (Long) hit.getSourceAsMap().get("publishTime");
+                        Date publishTime = new Date(dateLong);
+
+                        ArticleEO articleEO = new ArticleEO();
+                        articleEO.setId(articleId);
+                        articleEO.setCategoryId(categoryId);
+                        articleEO.setTitle(title);
+                        articleEO.setArticleType(articleType);
+                        articleEO.setArticleCover(articleCover);
+                        articleEO.setPublishUserId(publishUserId);
+                        articleEO.setPublishTime(publishTime);
+
+                        highlightArticles.add(articleEO);
+                    }
+                    return new AggregatedPageImpl<>((List<T>) highlightArticles, pageable, searchResponse.getHits().totalHits);
+                }
+
+                @Override
+                public <T> T mapSearchHit(SearchHit searchHit, Class<T> aClass) {
+                    return null;
+                }
+            });
         }
 
         // 重组文章列表，以约定方式 (PagedGridResult of list of articles) 返回给前端
