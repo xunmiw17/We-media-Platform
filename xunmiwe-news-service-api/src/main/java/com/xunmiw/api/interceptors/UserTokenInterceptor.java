@@ -11,6 +11,8 @@ public class UserTokenInterceptor extends BaseInterceptor implements HandlerInte
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         String userId = request.getHeader("headerUserId");
         String userToken = request.getHeader("headerUserToken");
+        System.out.println(userId);
+        System.out.println(userToken);
 
         // 判断是否放行
         boolean proceed = verifyUserIdToken(userId, userToken, REDIS_USER_TOKEN);

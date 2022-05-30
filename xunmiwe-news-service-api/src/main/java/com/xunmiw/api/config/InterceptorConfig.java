@@ -51,7 +51,6 @@ public class InterceptorConfig implements WebMvcConfigurer {
                 .addPathPatterns("/fans/unfollow")
                 .addPathPatterns("/comment/mng");
         registry.addInterceptor(userActiveInterceptor())
-                .addPathPatterns("/user/getAccountInfo")
                 .addPathPatterns("/fans/follow")
                 .addPathPatterns("/fans/unfollow");
         registry.addInterceptor(adminTokenInterceptor())

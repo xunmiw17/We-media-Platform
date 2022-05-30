@@ -242,8 +242,6 @@ public class ArticleServiceImpl extends BaseService implements ArticleService {
                     .withObject(articleEO)
                     .build();
             elasticsearchTemplate.index(query);
-        } else {
-            // TODO: Hand the task to MQ
         }
     }
 

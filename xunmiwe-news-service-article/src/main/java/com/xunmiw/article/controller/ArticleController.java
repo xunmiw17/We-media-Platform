@@ -136,6 +136,7 @@ public class ArticleController extends BaseController implements ArticleControll
      * @param articleId
      * @throws Exception
      */
+    @Deprecated
     private void createArticleHTML(String articleId) throws Exception {
         // 0. 配置freemarker基本环境
         Configuration config = new Configuration(Configuration.getVersion());
